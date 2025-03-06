@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  drui:
+    image: pxlfx/drui:0.1.0
+    container_name: drui
+    restart: always
+    environment:
+      DRUI_REGISTRY_ENDPOINT: http://distribution:5000
+      DRUI_REGISTRY_PULL_ENDPOINT: http://host.docker.internal:5000
+      DRUI_MARK_OFFICIAL_PREFIX: library
+    ports:
+      - 8000:8000
+  distribution:
+      image: distribution:2.8.2
+      container_name: distribution
+      restart: always
+      ports:
+        - 5000:5000
+      volumes:
+        - data:/var/lib/registry
+
+volumes:
+  data:
+    name: distribution_data

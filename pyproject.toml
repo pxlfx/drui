@@ -1,0 +1,67 @@
+[project]
+name = 'drui'
+keywords = ['docker', 'registry', 'ui', 'web']
+dynamic = ['version']
+description = 'Docker Registry User Interface'
+authors = [{ name = 'Sergey Zezyulin' }]
+maintainers = [{ name = 'Sergey Zezyulin' }]
+license-files = { paths = ['LICENSE'] }
+readme = { file = 'README.md', content-type = 'text/markdown' }
+homepage = 'https://github.com/pxlfx/drui'
+repository = 'https://github.com/pxlfx/drui'
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Web Environment',
+    'Framework :: Flask',
+    'Intended Audience :: Customer Service',
+    'Intended Audience :: Information Technology',
+    'Intended Audience :: System Administrators',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+]
+requires-python = '>=3.8'
+dependencies = [
+    'Flask>=3.0.0',
+    'requests>=2.19.0',
+    'urllib3>=2.0.7',
+    'gunicorn',
+]
+
+
+[project.scripts]
+drui = 'drui.main:main'
+
+[build-system]
+requires = ['hatchling']
+build-backend = 'hatchling.build'
+
+[tool.hatch.version]
+path = 'drui/__init__.py'
+
+[project.optional-dependencies]
+test = ['pytest', 'pytest-cov', 'bs4']
+
+[tool.pytest.ini_options]
+cache_dir = '/tmp/drui-cache'
+addopts = [
+    '--disable-warnings',
+    '--no-header',
+    '--verbose',
+    '--cache-clear',
+    '--color=auto',
+    '--cov=drui',
+    '--cov-report=term',
+]
+
+[tool.coverage.run]
+source = ['drui']
+omit = ['drui/main.py']

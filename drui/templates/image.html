@@ -1,0 +1,132 @@
+{% extends "core.html" %}
+{% set repository = get_repository(image) %}
+{% set application = get_application(image) %}
+{% set broadcast = conf.get('path', 'broadcast') %}
+
+{% block head %}
+<link href="{{ url_for('static', filename='libs/highlight/github.min.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='libs/highlight/github-dark.min.css') }}" rel="stylesheet" type="text/css">
+
+<script src="{{ url_for('static', filename='libs/showdown/showdown.min.js') }}"></script>
+<script src="{{ url_for('static', filename='libs/highlight/highlight.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/image.js') }}"></script>
+
+<style>
+    ol.list-group-numbered li:before {
+        min-width: 25px !important;
+        display: inline-block;
+        font-family: monospace;
+        margin-right: .4rem;
+    }
+</style>
+
+<script>
+    const endpoint = "{{ get_endpoint() }}";
+    const image = "{{ image | safe }}";
+    const tags = {{ tags | tojson | safe }};
+    const tag = "{{ tag | safe }}";
+    const manifest = {{ manifest | tojson | safe }};
+</script>
+{% endblock %}
+
+{% block nav %}
+<div class="nav me-auto"></div>
+{% endblock %}
+
+{% block main %}
+<!-- navigate section (start) -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb alert bg-body-tertiary">
+        <li class="breadcrumb-item">
+            <a href="/">Explore</a>
+        </li>
+        {% if repository %}
+        <li class="breadcrumb-item">
+            <a href="/r/{{ repository }}">{{ repository }}</a>
+        </li>
+        {% endif %}
+        <li class="breadcrumb-item d-none d-sm-inline active" aria-current="page">
+            {{ application }}:{{ tag }}
+        </li>
+        <!-- delete image section (start) -->
+        {% if not conf.getboolean('disable_delete') %}
+        <li class="ms-auto">
+            <div role="button" class="badge text-bg-danger" onclick="deleteImage('{{ image }}')">
+                <i class="fa me-1 small fa-trash"></i>
+                <span>delete</span>
+            </div>
+        </li>
+        {% endif %}
+        <!-- delete image section (end) -->
+    </ol>
+</nav>
+<!-- navigate section (end) -->
+
+<!-- image:tag section (start) -->
+<div class="h4 mt-2 mb-2 me-2 overflow-x-auto w-100 text-nowrap">
+        {{ image }}
+        <span class="ms-1" id="mark"></span>
+</div>
+<!-- image:tag section (end -->
+
+<!-- basic tag information section (start) -->
+<div class="row m-0">
+    <div class="col-12 col-md-9 p-0 pt-2">
+        <div class="d-flex overflow-x-auto">
+            <div class="badge text-bg-dark me-2">
+                <i class="fa fa-tag small align-middle me-1"></i>
+                {{ tag }}
+            </div>
+            <div class="badge text-bg-dark me-2">
+                <i class="fa fa-microchip small align-middle me-1"></i>
+                {{ manifest["os"] }}/{{ manifest["architecture"] }}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3 p-0 pt-2" id="pull"></div>
+</div>
+<!-- basic tag information section (end) -->
+
+<!-- tabs panel section (start) -->
+<ul class="nav nav-underline mt-4 mb-4 overflow-x-auto flex-row flex-nowrap">
+    <li class="nav-item">
+        <button class="nav-link px-2 px-md-4 text-nowrap active"
+                data-bs-toggle="tab" data-bs-target="#summary-pane" role="tab" id="summary-tab">
+            Summary
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-2 px-md-4 text-nowrap"
+                data-bs-toggle="tab" data-bs-target="#history-pane" role="tab" id="history-tab">
+            History
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-2 px-md-4 text-nowrap"
+                data-bs-toggle="tab" data-bs-target="#tags-pane" role="tab" id="tags-tab">
+            Tags
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-2 px-md-4 text-nowrap"
+                data-bs-toggle="tab" data-bs-target="#multiarch-pane" role="tab" id="multiarch-tab">
+            OS/Arch
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-2 px-md-4 text-nowrap"
+                data-bs-toggle="tab" data-bs-target="#inspect-pane" role="tab" id="inspect-tab">
+            Inspect
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="summary-pane"></div>
+    <div class="tab-pane fade" id="history-pane"></div>
+    <div class="tab-pane fade" id="tags-pane"></div>
+    <div class="tab-pane fade" id="multiarch-pane"></div>
+    <div class="tab-pane fade" id="inspect-pane"></div>
+</div>
+<!-- tabs panel section (end) -->
+{% endblock %}

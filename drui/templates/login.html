@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Docker Registry - auth</title>
+    <link href="{{ url_for('static', filename='images/favicon.png') }}" rel="shortcut icon" type="image/png">
+    <link href="{{ url_for('static', filename='libs/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='themes/night.css') }}" rel="stylesheet" type="text/css">
+
+    <script src="{{ url_for('static', filename='libs/fontawesome/fontawesome.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/fontawesome/custom.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/core.js') }}"></script>
+
+    <style>
+        input[type=text],
+        input[type=password],
+        .form-connect .form-control {
+            padding: 10px;
+            height: 45px;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column h-100">
+    {% if error %}
+    <div class="fixed-top alert alert-danger text-center">{{ error }}</div>
+    {% endif %}
+
+    <form class="form-connect align-content-center m-auto w-100" id="form" action="/login" method="POST">
+        <div class="container col-sm-10 col-md-8 col-lg-5 col-xl-5 col-xxl-3" style="min-width: 20rem;">
+            <div class="text-center">
+                <h4 class="h4 mt-3 mb-3 fw-light mb-2">
+                    <i class="fa fa-docker mb-2 text-muted"></i>
+                    <div>Registry UI</div>
+                </h4>
+
+                <hr>
+
+                <div class="text-muted small mb-4">
+                    container image library
+                </div>
+
+                <div>
+                    <label class="form-label float-start small m-0 px-1" for="username">username</label>
+                    <div class="input-group input-group-sm flex-nowrap mb-4 px-1">
+                        <span class="input-group-text bg-body border border-end-0">
+                            <i class="fa fa-user small text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" id="username" name="username"
+                            placeholder="username">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label float-start small m-0 px-1" for="password">password</label>
+                    <div class="input-group input-group-sm flex-nowrap mb-4 px-1">
+                        <span class="input-group-text bg-body border border-end-0 align-middle">
+                            <i class="fa fa-key small text-muted"></i>
+                        </span>
+                        <input type="password" class="form-control border-start-0" id="password" name="password"
+                            placeholder="password">
+                    </div>
+                </div>
+
+                <div class="row p-3">
+                    <button type="submit" class="btn btn-primary form-control">Sign in</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <footer class="footer mt-auto py-3 small">
+        <div class="container text-center">
+            <span class="text-body-secondary" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
+                aria-controls="offcanvasBottom">
+                <i class="fa fa-copyright text-warning align-middle me-2">©</i>
+                2025 DRUI | version {{ app_version() }}
+            </span>
+        </div>
+    </footer>
+
+    <div class="offcanvas offcanvas-bottom font-monospace" tabindex="-1" id="offcanvasBottom"
+        aria-labelledby="offcanvasBottomLabel">
+        <div class="offcanvas-header">
+            <b class="offcanvas-title" id="offcanvasBottomLabel">Project information</b>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body small py-0">
+            <div>Version: {{ app_version() }}</div>
+            <div>
+                Project page:
+                <a href="https://github.com/pxlfx/drui" target="_blank">https://github.com/pxlfx/drui</a>
+            </div>
+            <div>Code copyright 2025, PxlFx (Sergey Zezyulin)</div>
+        </div>
+    </div>
+</body>

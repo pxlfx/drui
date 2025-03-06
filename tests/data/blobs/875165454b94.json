@@ -1,0 +1,94 @@
+{
+  "architecture": "amd64",
+  "config": {
+    "ExposedPorts": {
+      "5000/tcp": {}
+    },
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    ],
+    "Entrypoint": [
+      "registry"
+    ],
+    "Cmd": [
+      "serve",
+      "/etc/docker/registry/config.yml"
+    ],
+    "Volumes": {
+      "/var/lib/registry": {}
+    },
+    "Labels": {
+      "org.opencontainers.image.created": "2023-10-02T18:06:35.402Z",
+      "org.opencontainers.image.description": "The toolkit to pack, ship, store, and deliver container content",
+      "org.opencontainers.image.licenses": "Apache-2.0",
+      "org.opencontainers.image.revision": "4772604ae973031ab32dd9805a4bccf61d94909f",
+      "org.opencontainers.image.source": "https://github.com/distribution/distribution",
+      "org.opencontainers.image.title": "Distribution",
+      "org.opencontainers.image.url": "https://github.com/distribution/distribution",
+      "org.opencontainers.image.version": "2.8.3"
+    },
+    "ArgsEscaped": true,
+    "OnBuild": null
+  },
+  "created": "2023-10-02T18:09:53.341850461Z",
+  "history": [
+    {
+      "created": "2023-09-28T21:19:27.686110063Z",
+      "created_by": "/bin/sh -c #(nop) ADD file:756183bba9c7f4593c2b216e98e4208b9163c4c962ea0837ef88bd917609d001 in / "
+    },
+    {
+      "created": "2023-09-28T21:19:27.801479409Z",
+      "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/sh\"]",
+      "empty_layer": true
+    },
+    {
+      "created": "2023-10-02T18:09:52.097479246Z",
+      "created_by": "RUN /bin/sh -c apk add --no-cache ca-certificates # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    },
+    {
+      "created": "2023-10-02T18:09:53.271298721Z",
+      "created_by": "COPY cmd/registry/config-dev.yml /etc/docker/registry/config.yml # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    },
+    {
+      "created": "2023-10-02T18:09:53.341850461Z",
+      "created_by": "COPY /registry /bin/registry # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    },
+    {
+      "created": "2023-10-02T18:09:53.341850461Z",
+      "created_by": "VOLUME [/var/lib/registry]",
+      "comment": "buildkit.dockerfile.v0",
+      "empty_layer": true
+    },
+    {
+      "created": "2023-10-02T18:09:53.341850461Z",
+      "created_by": "EXPOSE map[5000/tcp:{}]",
+      "comment": "buildkit.dockerfile.v0",
+      "empty_layer": true
+    },
+    {
+      "created": "2023-10-02T18:09:53.341850461Z",
+      "created_by": "ENTRYPOINT [\"registry\"]",
+      "comment": "buildkit.dockerfile.v0",
+      "empty_layer": true
+    },
+    {
+      "created": "2023-10-02T18:09:53.341850461Z",
+      "created_by": "CMD [\"serve\" \"/etc/docker/registry/config.yml\"]",
+      "comment": "buildkit.dockerfile.v0",
+      "empty_layer": true
+    }
+  ],
+  "os": "linux",
+  "rootfs": {
+    "type": "layers",
+    "diff_ids": [
+      "sha256:cc2447e1835a40530975ab80bb1f872fbab0f2a0faecf2ab16fbbb89b3589438",
+      "sha256:45fa3f6bae1decc692d72f334ecb34a1956b46a5dd6cf224b28deddedd04f2d6",
+      "sha256:feee4b8cd2cf3c5801c286ca68cd981f220684ad73bdd7b2af9f687395916f09",
+      "sha256:36fe25b61678587e5be6d500fb30d18d7e768290558d84f63226e000dcd43a98"
+    ]
+  }
+}

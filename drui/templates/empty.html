@@ -1,0 +1,17 @@
+{% extends "core.html" %}
+
+{% block main %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb alert bg-body-tertiary">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ image }}</li>
+    </ol>
+</nav>
+<div class="alert alert-info">
+    <b>Repository is empty.</b>
+    <div>
+        Push an image to a registry:
+        <code class="text-danger">docker push {{ get_endpoint() }}/{{ image }}</code>
+    </div>
+</div>
+{% endblock %}

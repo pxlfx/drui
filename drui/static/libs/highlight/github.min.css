@@ -1,0 +1,109 @@
+/*!
+  Theme: GitHub
+  Description: Light theme as seen on github.com
+  Author: github.com
+  Maintainer: @Hirse
+  Updated: 2021-05-15
+
+  Outdated base version: https://github.com/primer/github-syntax-light
+  Current colors taken from GitHub's CSS
+*/
+
+[data-bs-theme=light] pre code.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em
+}
+
+[data-bs-theme=light] code.hljs {
+    padding: 3px 5px
+}
+
+[data-bs-theme=light] .hljs {
+    color: #24292e;
+    background: #F3F3F3
+}
+
+[data-bs-theme=light] .hljs-doctag,
+[data-bs-theme=light] .hljs-keyword,
+[data-bs-theme=light] .hljs-meta .hljs-keyword,
+[data-bs-theme=light] .hljs-template-tag, .hljs-template-variable,
+[data-bs-theme=light] .hljs-type,
+[data-bs-theme=light] .hljs-variable.language_ {
+    color: #d73a49
+}
+
+[data-bs-theme=light] .hljs-title,
+[data-bs-theme=light] .hljs-title.class_,
+[data-bs-theme=light] .hljs-title.class_.inherited__,
+[data-bs-theme=light] .hljs-title.function_ {
+    color: #6f42c1
+}
+
+[data-bs-theme=light] .hljs-attr,
+[data-bs-theme=light] .hljs-attribute,
+[data-bs-theme=light] .hljs-literal,
+[data-bs-theme=light] .hljs-meta, .hljs-number,
+[data-bs-theme=light] .hljs-operator,
+[data-bs-theme=light] .hljs-selector-attr,
+[data-bs-theme=light] .hljs-selector-class,
+[data-bs-theme=light] .hljs-selector-id,
+[data-bs-theme=light] .hljs-variable {
+    color: #005cc5
+}
+
+[data-bs-theme=light] .hljs-meta .hljs-string,
+[data-bs-theme=light] .hljs-regexp, .hljs-string {
+    color: #032f62
+}
+
+[data-bs-theme=light] .hljs-built_in,
+[data-bs-theme=light] .hljs-symbol {
+    color: #e36209
+}
+
+[data-bs-theme=light] .hljs-code,
+[data-bs-theme=light] .hljs-comment,
+[data-bs-theme=light] .hljs-formula {
+    color: #6a737d
+}
+
+[data-bs-theme=light] .hljs-name,
+[data-bs-theme=light] .hljs-quote,
+[data-bs-theme=light] .hljs-selector-pseudo,
+[data-bs-theme=light] .hljs-selector-tag {
+    color: #22863a
+}
+
+[data-bs-theme=light] .hljs-subst {
+    color: #24292e
+}
+
+[data-bs-theme=light] .hljs-section {
+    color: #005cc5;
+    font-weight: 700
+}
+
+[data-bs-theme=light] .hljs-bullet {
+    color: #735c0f
+}
+
+[data-bs-theme=light] .hljs-emphasis {
+    color: #24292e;
+    font-style: italic
+}
+
+[data-bs-theme=light] .hljs-strong {
+    color: #24292e;
+    font-weight: 700
+}
+
+[data-bs-theme=light] .hljs-addition {
+    color: #22863a;
+    background-color: #f0fff4
+}
+
+[data-bs-theme=light] .hljs-deletion {
+    color: #b31d28;
+    background-color: #ffeef0
+}

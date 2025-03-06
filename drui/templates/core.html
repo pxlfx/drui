@@ -1,0 +1,135 @@
+{% set theme = conf.get('bootstrap_theme') %}
+{% set official_prefix = conf.getlist('official_prefix', 'mark', default=[]) | safe %}
+{% set verified_prefix = conf.getlist('verified_prefix', 'mark', default=[]) | safe %}
+
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Docker Registry</title>
+    <link href="{{ url_for('static', filename='images/light.png') }}" rel="shortcut icon" type="image/png" id="light_icon">
+    <link href="{{ url_for('static', filename='images/dark.png') }}" rel="shortcut icon" type="image/png" id="dark_icon">
+    <link href="{{ url_for('static', filename='libs/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='themes/night.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='libs/table.js/table.min.css') }}" rel="stylesheet" type="text/css">
+
+    <script src="{{ url_for('static', filename='libs/jquery/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/fontawesome/fontawesome.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/fontawesome/custom.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/table.js/table.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/popper/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/alert.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/core.js') }}"></script>
+
+    <script>
+        const official_prefix = {{ official_prefix }};
+        const verified_prefix = {{ verified_prefix }};
+    </script>
+    {% block head %}{% endblock %}
+</head>
+
+<body class="d-flex flex-column h-100">
+    {% block body %}
+    <!-- ---------------------------- -->
+    <!--         Header block         -->
+    <!-- ---------------------------- -->
+    <header class="navbar navbar-expand bg-body p-2 ps-3 pe-3 fixed-top container">
+        <a class="navbar-brand text-body" href="/">
+            <i class="fa fa-docker me-2"></i>
+            <span class="d-none d-md-inline-block" style="width: 0;">Docker Registry</span>
+        </a>
+        {% block nav %}
+        <div class="me-auto"></div>
+        {% endblock %}
+
+        <!-- right-side header elements -->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <button class="btn title p-0" id="core_theme" title="switch theme" data-bs-toggle="tooltip"
+                    data-bs-title="switch theme" data-bs-placement="bottom" onclick="_core_.toggleTheme()">
+                </button>
+            </li>
+            <!-- user settings -->
+            {% if in_session("auth") %}
+            <li class="nav-item ms-4">
+                <a href="/logout">logout</a>
+            </li>
+            {% endif %}
+        </ul>
+    </header>
+    <!-- ---------------------------- -->
+    <!--       End Header block       -->
+    <!-- ---------------------------- -->
+
+    <!-- ---------------------------- -->
+    <!--          Main block          -->
+    <!-- ---------------------------- -->
+    <main class="container mb-2 flex-shrink-0" style="padding-top: 80px;" role="main">
+        {% if error %}
+        <div class="alert alert-danger text-center mt-2">{{ error }}</div>
+        {% else %}
+        {% block main %}{% endblock %}
+        {% endif %}
+    </main>
+    <!-- ---------------------------- -->
+    <!--        End Main block        -->
+    <!-- ---------------------------- -->
+
+    <footer class="footer mt-auto py-3 small">
+        <div class="container text-center">
+            <span class="text-body-secondary" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
+                aria-controls="offcanvasBottom">
+                <i class="fa fa-copyright text-warning align-middle me-2">©</i>
+                2025 DRUI | version {{ app_version() }}
+            </span>
+        </div>
+    </footer>
+
+    <div class="offcanvas offcanvas-bottom font-monospace" tabindex="-1" id="offcanvasBottom"
+        aria-labelledby="offcanvasBottomLabel">
+        <div class="offcanvas-header">
+            <b class="offcanvas-title" id="offcanvasBottomLabel">Project information</b>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body small py-0">
+            <div>Version: {{ app_version() }}</div>
+            <div>
+                Project page:
+                <a href="https://github.com/pxlfx/drui" target="_blank">https://github.com/pxlfx/drui</a>
+            </div>
+            <div>Code copyright 2025, PxlFx (Sergey Zezyulin)</div>
+        </div>
+    </div>
+    {% endblock %}
+
+    <!-- modal window (use for alert.js) -->
+    <div class="modal fade" id="alert" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-body-tertiary">
+                <div class="modal-body">
+                    <div class="alert alert-danger alert-dismissible visually-hidden" id="modal_feedback">
+                        <div class="overflow-auto" style="max-height: 150px;"></div>
+                        <button type="button" class="btn-close" aria-label="Close"
+                            onclick="this.parentElement.classList.add('visually-hidden')">
+                        </button>
+                    </div>
+                    <div id="modal_body"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" id="modal_cancel" onclick="alertBox.cancel();">
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" id="modal_save" onclick="alertBox.accept();">
+                        Save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
