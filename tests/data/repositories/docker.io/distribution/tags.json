@@ -1,0 +1,8 @@
+{
+  "name": "docker.io/distribution",
+  "tags": [
+    "latest",
+    "1.0.0-alpha",
+    "0.1.0"
+  ]
+}

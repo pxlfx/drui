@@ -1,0 +1,14 @@
+**/__pycache__
+**/.venv
+**/.vscode
+**/.dockerignore
+**/.git
+**/.gitignore
+**/.github
+**/.coverage
+**/tests
+**/docs
+**/docker-compose*
+**/Dockerfile*
+**/config.*.cfg
+!config.example.cfg

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "name": "docker.io/distribution",
+  "tag": "latest",
+  "architecture": "amd64",
+  "fsLayers": [
+    {
+      "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
+    },
+    {
+      "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
+    },
+    {
+      "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
+    },
+    {
+      "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
+    },
+    {
+      "blobSum": "sha256:5505c730697ba139c8d6951384b9bce3f7eb69d271b6d47c5780459e42b66b4a"
+    },
+    {
+      "blobSum": "sha256:1958bcbc14a8868f826636f4bd83b32b87a8ecbc623979118d03c5315f6ced16"
+    },
+    {
+      "blobSum": "sha256:da22f80e3f66b2d4f5998ecc1753234cc0b9f10840fc3a3ab10cf1568f6c54bd"
+    },
+    {
+      "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
+    },
+    {
+      "blobSum": "sha256:ed06cbb6a25cad43a6a75959ca8f39d86b48a93d2c58c3eddd58ab1b4b15d2ad"
+    }
+  ],
+  "history": [
+    {
+      "v1Compatibility": "{\"architecture\":\"amd64\",\"config\":{\"ExposedPorts\":{\"5000/tcp\":{}},\"Env\":[\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"],\"Entrypoint\":[\"registry\"],\"Cmd\":[\"serve\",\"/etc/docker/registry/config.yml\"],\"Volumes\":{\"/var/lib/registry\":{}},\"Labels\":{\"org.opencontainers.image.created\":\"2023-10-02T18:06:35.402Z\",\"org.opencontainers.image.description\":\"The toolkit to pack, ship, store, and deliver container content\",\"org.opencontainers.image.licenses\":\"Apache-2.0\",\"org.opencontainers.image.revision\":\"4772604ae973031ab32dd9805a4bccf61d94909f\",\"org.opencontainers.image.source\":\"https://github.com/distribution/distribution\",\"org.opencontainers.image.title\":\"Distribution\",\"org.opencontainers.image.url\":\"https://github.com/distribution/distribution\",\"org.opencontainers.image.version\":\"2.8.3\"},\"ArgsEscaped\":true,\"OnBuild\":null},\"created\":\"2023-10-02T18:09:53.341850461Z\",\"id\":\"be7571b45ddc02c4bdb450f1ba3d6bfbbefa96baaf7b9e235713e4c904922240\",\"os\":\"linux\",\"parent\":\"ac0467c7f328fe6d02cc2a6bec4c4659cb5c7c9d609c1785642dc69f2a755ab1\",\"throwaway\":true}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"ac0467c7f328fe6d02cc2a6bec4c4659cb5c7c9d609c1785642dc69f2a755ab1\",\"parent\":\"46566cbd717f240777618021e4b20a27ce5ec8cc8a84d7acc9be9cb1d73324b5\",\"comment\":\"buildkit.dockerfile.v0\",\"created\":\"2023-10-02T18:09:53.341850461Z\",\"container_config\":{\"Cmd\":[\"ENTRYPOINT [\\\"registry\\\"]\"]},\"throwaway\":true}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"46566cbd717f240777618021e4b20a27ce5ec8cc8a84d7acc9be9cb1d73324b5\",\"parent\":\"fe51c160b420b910d06ebb7d42bf78a911460e370526165aeadc895271af29b8\",\"comment\":\"buildkit.dockerfile.v0\",\"created\":\"2023-10-02T18:09:53.341850461Z\",\"container_config\":{\"Cmd\":[\"EXPOSE map[5000/tcp:{}]\"]},\"throwaway\":true}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"fe51c160b420b910d06ebb7d42bf78a911460e370526165aeadc895271af29b8\",\"parent\":\"c9d5d1ca35b68bfbc6bd736425c8679851c17487be86772c19fdc391fac2177f\",\"comment\":\"buildkit.dockerfile.v0\",\"created\":\"2023-10-02T18:09:53.341850461Z\",\"container_config\":{\"Cmd\":[\"VOLUME [/var/lib/registry]\"]},\"throwaway\":true}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"c9d5d1ca35b68bfbc6bd736425c8679851c17487be86772c19fdc391fac2177f\",\"parent\":\"d38df3b91e58385cf67ee026ad54236208262c3042b75416a008ee8b0f814aa8\",\"comment\":\"buildkit.dockerfile.v0\",\"created\":\"2023-10-02T18:09:53.341850461Z\",\"container_config\":{\"Cmd\":[\"COPY /registry /bin/registry # buildkit\"]}}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"d38df3b91e58385cf67ee026ad54236208262c3042b75416a008ee8b0f814aa8\",\"parent\":\"d6a62cb57d4c8ecde2f34c6356a86c57964af613b46d4460435d5c9c0f55290f\",\"comment\":\"buildkit.dockerfile.v0\",\"created\":\"2023-10-02T18:09:53.271298721Z\",\"container_config\":{\"Cmd\":[\"COPY cmd/registry/config-dev.yml /etc/docker/registry/config.yml # buildkit\"]}}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"d6a62cb57d4c8ecde2f34c6356a86c57964af613b46d4460435d5c9c0f55290f\",\"parent\":\"95589fb80a07e605ee8f1722c1e1500b5614459e4266b7134c01b29b3d151de1\",\"comment\":\"buildkit.dockerfile.v0\",\"created\":\"2023-10-02T18:09:52.097479246Z\",\"container_config\":{\"Cmd\":[\"RUN /bin/sh -c apk add --no-cache ca-certificates # buildkit\"]}}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"95589fb80a07e605ee8f1722c1e1500b5614459e4266b7134c01b29b3d151de1\",\"parent\":\"b26251e21ef4a1c2070896b4656938eb6c9a0c136cf7c1a31734c08d130fecd9\",\"created\":\"2023-09-28T21:19:27.801479409Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  CMD [\\\"/bin/sh\\\"]\"]},\"throwaway\":true}"
+    },
+    {
+      "v1Compatibility": "{\"id\":\"b26251e21ef4a1c2070896b4656938eb6c9a0c136cf7c1a31734c08d130fecd9\",\"created\":\"2023-09-28T21:19:27.686110063Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop) ADD file:756183bba9c7f4593c2b216e98e4208b9163c4c962ea0837ef88bd917609d001 in / \"]}}"
+    }
+  ],
+  "signatures": [
+    {
+      "header": {
+        "jwk": {
+          "crv": "P-256",
+          "kid": "2Q2I:XWZ6:T7NY:DWJC:H6EJ:Z2GV:FIQW:KTLR:HGR5:YEFE:I2Q4:47UY",
+          "kty": "EC",
+          "x": "SYmUYtlz1WySzbda1EYIMMVFTMcTHVDZlzWvEt1yeIY",
+          "y": "DfkQJx1PPtJq90GZJF6Op-Gcf5oXkUpdNfKf7ckygrM"
+        },
+        "alg": "ES256"
+      },
+      "signature": "3RCjVV2agHLUl9Cl8OZJo7Bk-wKFteB0YK4AupUYDdZgkwjNNFYhBeHBHMHNdrp5GhjUBS2Lmjp1OGxcWaU3pw",
+      "protected": "eyJmb3JtYXRMZW5ndGgiOjUyOTcsImZvcm1hdFRhaWwiOiJDbjAiLCJ0aW1lIjoiMjAyNS0wMS0yN1QxMDoxODo1MFoifQ"
+    }
+  ]
+}
