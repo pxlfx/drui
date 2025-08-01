@@ -2,6 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/release/pxlfx/drui.svg)](LICENSE)
 
 <div align="center">
   <img src="docs/images/logo.png" alt="drui-logo"/>
@@ -25,7 +26,7 @@ https://pxlfx.dev/projects/drui/demo
 
 <div style="text-align: center; margin-bottom: 2rem;">
   <a href="docs/screenshots/">
-    <img src="docs/screenshots/preview.png" alt="screenshot" />
+    <img src="docs/images/preview.png" alt="screenshot" />
         <br />
         (click to vieww all screenshots)
   </a>
