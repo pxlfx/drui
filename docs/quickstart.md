@@ -76,7 +76,7 @@ services:
       - distribution
 
   distribution:
-    image: distribution:2.8.2
+    image: distribution/distribution:3.0.0
     container_name: distribution
     restart: always
     ports:
