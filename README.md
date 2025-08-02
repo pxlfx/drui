@@ -24,12 +24,14 @@ https://pxlfx.dev/projects/drui/demo
 
 ## Features
 
-<div style="text-align: center; margin-bottom: 2rem;">
-  <a href="docs/screenshots/">
+<div align="center">
+  <a href="docs/screenshots.md">
     <img src="docs/images/preview.png" alt="screenshot" />
         <br />
-        (click to vieww all screenshots)
+        (click to view all screenshots)
   </a>
+  <br />
+  <br />
 </div>
 
 - **Image Catalog Overview**: browse through all available images in the
