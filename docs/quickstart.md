@@ -69,7 +69,7 @@ services:
     container_name: drui
     restart: always
     environment:
-      DRUI_REGISTRY_ENDPOINT: http://distribuition:5000
+      DRUI_REGISTRY_ENDPOINT: http://distribution:5000
     ports:
       - 8000:8000
     depends_on:

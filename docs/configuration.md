@@ -72,7 +72,7 @@ Below is a detailed explanation of each parameter.
 - **Description**: the endpoint showed in pull-string
   (`docker pull <pull_endpoint>/<image>`)
 - **Type**: `string`
-- **Example**: `http://public.registry.io/`
+- **Example**: `http://public.registry.io`
 - **Default**: `<none>` (if not provided, the `endpoint` value is used)
 - **Environment Variable**: `DRUI_REGISTRY_PULL_ENDPOINT`
 
