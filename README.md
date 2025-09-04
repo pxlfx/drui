@@ -19,7 +19,7 @@ in your private or public Docker registry.
 
 ## Demo
 
-https://pxlfx.dev/projects/drui/demo
+https://drui.pxlfx.dev
 
 
 ## Features
