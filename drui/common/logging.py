@@ -75,7 +75,7 @@ def get_logger(name: t.Optional[str] = None) -> logging.Logger:
     Simulates the behavior of logging.getLogger.
 
     :param name: <ignoring>
-    :returns: logging handler
+    :return: logging handler
     """
     formatter = RequestFormatter('[%(asctime)s] %(levelname)s %(method)s'
                                  ' %(status_code)s %(url)s %(message)s')

@@ -42,7 +42,7 @@ https://drui.pxlfx.dev
     - **tags**: list all tags associated with the image
     - **os/arch**: display os/arch for multi-architecture images
     - **inspect**: inspect detailed metadata of the image
-- **Tag Management**: delete specific tags from images
+- **Tag Management**: download and delete specific tags from images
 - **Filtering**: search and filter images by name
 - **Repository Browsing**: explore images within a specific repository
 - **Image Marking**: identify official and verified publisher images

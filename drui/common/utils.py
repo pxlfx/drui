@@ -57,7 +57,7 @@ class RequestParams:
         Checks if the specified key exists.
 
         :param key: key
-        :returns: True - if key exist, else False
+        :return: True - if key exist, else False
         """
         return key.lower() in self.params
 

@@ -1,18 +1,22 @@
 import typing as t
 from hashlib import sha256
+from io import BytesIO
+from json import dumps
 from re import findall
 
 import requests
 from flask import request
 from flask import session
-from hashlib import sha256
+from requests import PreparedRequest
 from requests.models import Response
 from requests.structures import CaseInsensitiveDict
 from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotImplemented
 from werkzeug.exceptions import Unauthorized
 
 from drui.common.config import ConfigParser
 from drui.common.logging import get_logger
+from drui.common.tarstream import TarStream
 from drui.common.utils import RequestParams
 from drui.common.utils import check_status
 
@@ -81,16 +85,11 @@ class Registry:
             )
         }
 
-    def request(self, method: str, uri: str, **kwargs: t.Any) -> Response:
-        """
-        Send HTTP request and return result.
+    def make_request(self, **kwargs):
+        kwargs['url'] = self.registry_endpoint + kwargs['uri']
+        del kwargs['uri']
 
-        :param method: HTTP methods (GET, POST, PUT, etc.)
-        :param uri: URI
-        :param kwargs: additional request parameters
-        :return: result of request
-        """
-        # # add user request headers to request
+        # add user request headers to request
         headers = CaseInsensitiveDict(request.headers)
         headers.update(kwargs.pop('headers', {}))
         headers.pop('Content-Length', None)
@@ -102,7 +101,22 @@ class Registry:
         # # add auth credentials to request
         kwargs['auth'] = session.get('auth')
 
-        return requests.request(method, self.registry_endpoint + uri, **kwargs)
+        req = requests.Request(**kwargs)
+        return req.prepare()
+
+    def request(self, method: str, uri: str, **kwargs: t.Any) -> Response:
+        """
+        Send HTTP request and return result.
+
+        :param method: HTTP methods (GET, POST, PUT, etc.)
+        :param uri: URI
+        :param kwargs: additional request parameters
+        :return: result of request
+        """
+        kwargs.update({'method': method, 'uri': uri})
+        req = self.make_request(**kwargs)
+        with requests.Session() as request_session:
+            return request_session.send(req)
 
     def login(self, username: str, password: str) -> bool:
         """
@@ -145,31 +159,27 @@ class Registry:
         :return: manifest
         """
         params = RequestParams()
-        ref = params.get('digest', default=tag)
+        digest = params.get('digest')
         manifest = {}
 
-        try:
-            # get manifest list
-            resp = self.request('GET', f'/v2/{image}/manifests/{tag}',
-                                headers=self.accept)
-            check_status(resp)
-
-            manifest_list = resp.json().get('manifests')
-            manifest['manifests'] = manifest_list
-
-            if manifest_list:
-                ref = manifest_list[0]['digest']
-        except NotFound:
-            pass
-
-        # get image manifest
-        try:
-            resp = self.request('GET', f'/v2/{image}/manifests/{ref}',
-                                headers=self.accept)
-            check_status(resp)
-        except NotFound:
-            return None
+        resp = self.request('GET', f'/v2/{image}/manifests/{tag}',
+                            headers=self.accept)
+        check_status(resp)
         manifest.update(resp.json())
+
+        # get manifest list
+        manifest_list = resp.json().get('manifests')
+        manifest['manifests'] = manifest_list
+
+        if manifest_list and not digest:
+            digest = manifest_list[0]['digest']
+
+        # get manifest by digest
+        if digest:
+            resp = self.request('GET', f'/v2/{image}/manifests/{digest}',
+                                headers=self.accept)
+            check_status(resp)
+            manifest.update(resp.json())
 
         # add image digest to manifest
         manifest['digest'] = resp.headers.get(
@@ -226,3 +236,103 @@ class Registry:
                             headers=self.accept)
         check_status(resp)
         return True
+
+    def blob(self, image: str, digest: str) -> PreparedRequest:
+        """
+        Prepare HTTP request for blob download.
+
+        :param image: image name
+        :param digest: blob digest
+        """
+        resp = self.make_request(
+            method='GET',
+            uri=f'/v2/{image}/blobs/{digest}',
+            headers=self.accept
+        )
+        return resp
+
+    def image_tar(self, image: str, tag: str):
+        """
+        Generate a Docker image TAR archive.
+
+        Supported manifest version 2.
+
+        Based on the official Moby implementation:
+        https://github.com/moby/moby/blob/master/contrib/download-frozen-image-v2.sh
+
+        :param image: image name
+        :param tag: image tag
+        :return: TarStream containing the complete image archive
+        """
+        stream = TarStream()
+
+        manifest = self.manifest(image, tag)
+        schema_version = manifest.get('schemaVersion')
+        if schema_version != 2:
+            raise NotImplemented(f'Manifest schemaVersion "{schema_version}'
+                                 ' not supported.')
+
+        # add image configuration
+        config_digest = manifest.get('id')
+        config_id = config_digest.split(':')[1]
+        stream.add(
+            self.blob(image, config_digest),
+            filename=f'{config_id}.json'
+        )
+
+        # precompute VERSION file content (shared across all layers)
+        version_content = b'1.0'
+
+        # process image layers
+        layers = manifest.get('layers', [])
+        layer_entries = []
+        parent_id = ''
+        for layer in layers:
+            layer_digest = layer.get('digest')
+            layer_id = sha256(
+                f'{parent_id}\n{layer_digest}\n'.encode()
+            ).hexdigest()
+
+            # add layer metadata file
+            layer_json = {'id': layer_id}
+            if parent_id:
+                layer_json['parent'] = parent_id
+            stream.add(
+                BytesIO(dumps(layer_json).encode()),
+                filename=f'{layer_id}/json'
+            )
+
+            # add layer VERSION file
+            stream.add(
+                BytesIO(version_content),
+                filename=f'{layer_id}/VERSION'
+            )
+
+            # add layer data
+            stream.add(
+                self.blob(image, layer_digest),
+                filename=f'{layer_id}/layer.tar'
+            )
+
+            # record layer ID for manifest
+            layer_entries.append(f'{layer_id}/layer.tar')
+
+        # add manifest file
+        manifest_entry = [{
+            'Config': f'{config_id}.json',
+            'RepoTags': [f'{image}:{tag}'],
+            'Layers': layer_entries
+        }]
+        stream.add(BytesIO(
+            dumps(manifest_entry).encode()),
+            filename='manifest.json'
+        )
+
+        # add repositories file
+        repositories_entry = {image: {tag: ''}}
+        stream.add(
+            BytesIO(dumps(repositories_entry).encode()),
+            filename='repositories'
+        )
+
+        return stream

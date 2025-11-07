@@ -97,9 +97,6 @@ def image_tag(image: str, tag: str) -> t.Union[Response, str]:
     :return: information about image tag
     """
     registry = getattr(flask.current_app, 'registry')
-    endpoint = registry.conf.get('endpoint', 'registry')
-    pull_endpoint = registry.conf.get('pull_endpoint', 'registry',
-                                      default=endpoint)
 
     # get image manifest
     manifest = registry.manifest(image, tag)
@@ -136,6 +133,25 @@ def image_tag_delete(image: str, tag: str) -> Response:
     if not result:
         return json_answer(f'{image}:{tag} not found', status_code=404)
     return json_answer(f'{image}:{tag} successfully deleted')
+
+
+@app.route('/d/<path:image>/<tag>')
+def image_tag_archive(image: str, tag: str) -> Response:
+    """
+    Return a Docker image TAR archive.
+
+    :param image: image name
+    :param tag: image tag
+    :return: image archive
+    """
+    registry = get_registry()
+    stream = registry.image_tar(image, tag)
+
+    return Response(
+        flask.stream_with_context(stream.start()),
+        mimetype='application/x-tar',
+        headers={'Content-Disposition': f'attachment; filename={image}.tar'}
+    )
 
 
 def error_page(error: HTTPException) -> t.Union[Response, t.Tuple[str, int]]:

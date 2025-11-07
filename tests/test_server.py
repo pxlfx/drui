@@ -12,6 +12,7 @@ url_map_snapshot = {
     '/r/<path:name>': {'GET', 'HEAD', 'OPTIONS'},
     '/_/<path:image>': {'GET', 'HEAD', 'OPTIONS'},
     '/_/<path:image>/tags/<tag>': {'GET', 'HEAD', 'OPTIONS', 'DELETE'},
+    '/d/<path:image>/<tag>': {'HEAD', 'OPTIONS', 'GET'},
     '/login': {'POST', 'OPTIONS'},
     '/logout': {'GET', 'HEAD', 'OPTIONS'},
     '/broadcast': {'GET', 'HEAD', 'OPTIONS'},
@@ -121,18 +122,29 @@ def test_image_ref(client):
     assert_response(response, status_code=302)
 
 
-@pytest.mark.parametrize('uri', ['/_/non-exist', '/_/non-exist/tags/latest'])
-def test_missing_manifest(uri, client):
+def test_missing_image(client):
     """
-    Test for missing manifest.
+    Test for missing image.
     """
-    response = client.get(uri)
+    response = client.get('/_/non-exist')
     assert_response(response)
 
     soup = BeautifulSoup(response.text, 'html.parser')
     info = soup.find('div', class_='alert alert-info').find('b')
     assert info
     assert info.text == 'Repository is empty.'
+
+
+@pytest.mark.parametrize('uri', [
+    '/_/non-exist/tags/latest',
+    '/_/non-exist/tags/latest?digest=digest'
+])
+def test_missing_tag(uri, client):
+    """
+    Test for missing tag.
+    """
+    response = client.get(uri)
+    assert_response(response, status_code=404)
 
 
 def test_delete_image_tag(client):

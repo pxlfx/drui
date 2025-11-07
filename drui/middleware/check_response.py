@@ -45,7 +45,7 @@ def _get_view_func(url: t.Union[Rule, str],
 
     :param url: URL
     :param method: method
-    :returns: function, function parameters
+    :return: function, function parameters
     """
     adapter = current_app.url_map.bind('localhost')
 
