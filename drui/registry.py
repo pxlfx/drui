@@ -146,9 +146,20 @@ class Registry:
         """
         Return repository list.
         """
-        resp = self.request('GET', '/v2/_catalog')
-        check_status(resp)
-        return resp.json().get('repositories', [])
+        repository_list = []
+        limit = 1000
+        last = ''
+
+        while True:
+            resp = self.request('GET', f'/v2/_catalog?n={limit}&last={last}')
+            check_status(resp)
+            part_of_repository_list = resp.json().get('repositories', [])
+            repository_list.extend(part_of_repository_list)
+            if len(part_of_repository_list) < limit:
+                break
+            last = part_of_repository_list[-1]
+
+        return repository_list
 
     def manifest(self, image: str, tag: str) -> t.Optional[t.Dict]:
         """
