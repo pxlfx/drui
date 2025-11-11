@@ -134,7 +134,7 @@ class Registry:
                 token = bearer_token(resp)
                 kwargs.setdefault('headers', {})
                 kwargs['headers'].update({'Authorization': f'Bearer {token}'})
-            return self.request(**kwargs)
+                return self.request(**kwargs)
 
         return resp
 
