@@ -46,7 +46,7 @@ https://drui.pxlfx.dev
 - **Filtering**: search and filter images by name
 - **Repository Browsing**: explore images within a specific repository
 - **Image Marking**: identify official and verified publisher images
-- **Auth**: basic auth support in web interface
+- **Auth**: basic auth / bearer token auth support in web interface
 - **Theme**: dark/ligth theme in web interface
 - **Mobile View**: support mobile view
 

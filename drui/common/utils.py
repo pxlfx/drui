@@ -17,7 +17,8 @@ def check_status(resp: t.Optional[Response]) -> None:
     Check response status code and raise exception at error.
     """
     if resp.status_code in default_exceptions:
-        raise default_exceptions[resp.status_code](description=resp.reason)
+        ex = default_exceptions[resp.status_code]
+        raise ex(response=resp, description=resp.reason)
     resp.raise_for_status()
 
 

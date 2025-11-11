@@ -19,6 +19,7 @@ from drui.common.logging import get_logger
 from drui.common.tarstream import TarStream
 from drui.common.utils import RequestParams
 from drui.common.utils import check_status
+from drui.token import bearer_token
 
 log = get_logger(__name__)
 
@@ -66,7 +67,7 @@ class Registry:
 
         # supported authentication providers:
         #  - basic: apache htpasswd file
-        self.auth_providers = ('basic',)
+        self.auth_providers = ('basic', 'bearer',)
 
         # registry endpoint
         self.registry_endpoint = self.conf.get('endpoint', 'registry',
@@ -98,8 +99,9 @@ class Registry:
         headers.pop('Host', None)
         kwargs['headers'] = headers
 
-        # # add auth credentials to request
-        kwargs['auth'] = session.get('auth')
+        # add auth header to request
+        if 'Authorization' not in headers:
+            kwargs['auth'] = session.get('auth')
 
         req = requests.Request(**kwargs)
         return req.prepare()
@@ -116,31 +118,39 @@ class Registry:
         kwargs.update({'method': method, 'uri': uri})
         req = self.make_request(**kwargs)
         with requests.Session() as request_session:
-            return request_session.send(req)
+            resp = request_session.send(req)
 
-    def login(self, username: str, password: str) -> bool:
+        try:
+            check_status(resp)
+        except Unauthorized:
+            # get auth provider: basic, bearer, etc...
+            # raise Unauthorized if provider not supported
+            provider = auth_provider(resp)
+            if provider not in self.auth_providers:
+                raise Unauthorized(
+                    f'Auth provider "{provider}" not supported.')
+
+            if provider == 'bearer':
+                token = bearer_token(resp)
+                kwargs.setdefault('headers', {})
+                kwargs['headers'].update({'Authorization': f'Bearer {token}'})
+            return self.request(**kwargs)
+
+        return resp
+
+    def login(self, username: str, password: str) -> None:
         """
         User authorization in Registry.
 
         :param username: username
         :param password: user password
-        :return: True if authorization complete successfully, else False
         """
-        # get auth provider: basic, bearer, etc...
-        # raise Unauthorized if provider not supported
-        resp = self.request('GET', '/v2/')
-        provider = auth_provider(resp)
-        if provider not in self.auth_providers:
-            raise Unauthorized(f'Auth provider "{provider}" not supported.')
-
         # save auth credentials in session
         session['auth'] = (username, password)
-        session['provider'] = provider
 
-        # check connection to registry with auth credentials
-        resp = self.request('GET', '/v2/')
+        # check access ro Registry
+        resp = self.request('HEAD', '/v2/')
         check_status(resp)
-        return True
 
     def repositories(self) -> t.List[str]:
         """

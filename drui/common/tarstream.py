@@ -6,6 +6,10 @@ import typing as t
 from requests import PreparedRequest
 from requests import Session
 
+from drui.common.logging import get_logger
+
+log = get_logger(__name__)
+
 
 class Data:
     def __init__(self, data, filename, symlink):
@@ -87,7 +91,7 @@ class TarStream:
                                 tar.addfile(tar_info, file_data)
 
                         except Exception as e:
-                            print(f'Error processing {item.filename}: {e}')
+                            log.error(f'Error processing {item.filename}: {e}')
                             continue
 
         # start writer thread
