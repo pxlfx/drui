@@ -121,6 +121,7 @@ Below is a detailed explanation of each parameter.
   placeholders:
     - `info`
     - `warning`
+    - `error`
     - `critical`
     - `debug`
 - **Type**: `string`

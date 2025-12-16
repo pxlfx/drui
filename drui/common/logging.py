@@ -12,7 +12,10 @@ from drui.common import config
 
 NOTSET = logging.NOTSET
 conf = config.CONF
-level_names = logging.getLevelNamesMapping()
+
+
+def log_level(level):
+    return getattr(logging, level.upper())
 
 
 class RequestFormatter(logging.Formatter):
@@ -83,7 +86,7 @@ def get_logger(name: t.Optional[str] = None) -> logging.Logger:
                                  ' %(status_code)s %(url)s %(message)s')
 
     logger = logging.getLogger(name)
-    logger.setLevel(level_names[level])
+    logger.setLevel(log_level(level))
 
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
