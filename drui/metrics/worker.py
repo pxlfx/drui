@@ -33,14 +33,12 @@ def run(conf: ConfigParser) -> None:
             seconds = (datetime.now() - timestamp).total_seconds()
             diff = interval - seconds
 
-            match status:
-                case STATUSES.completed:
-                    sleep(diff if diff >= 0 else 0)
-
-                case STATUSES.error:
-                    error_count += 1
-                    if error_count >= 3:
-                        exit(2)
-                    sleep(60)
+            if status == STATUSES.completed:
+                sleep(diff if diff >= 0 else 0)
+            elif STATUSES.error:
+                error_count += 1
+                if error_count >= 3:
+                    exit(2)
+                sleep(60)
 
         metrics.run()
