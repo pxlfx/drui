@@ -6,25 +6,26 @@ from re import findall
 
 import requests
 from flask import request
-from flask import session
 from requests import PreparedRequest
+from requests.auth import _basic_auth_str
 from requests.models import Response
 from requests.structures import CaseInsensitiveDict
 from werkzeug.exceptions import NotFound
 from werkzeug.exceptions import NotImplemented
 from werkzeug.exceptions import Unauthorized
 
-from drui.common.config import ConfigParser
+from drui.auth.bearer import Bearer
 from drui.common.logging import get_logger
 from drui.common.tarstream import TarStream
-from drui.common.utils import RequestParams
 from drui.common.utils import check_status
-from drui.token import bearer_token
 
 log = get_logger(__name__)
 
 
-def union(*args) -> str:
+def union(*args: str) -> str:
+    """
+    Join multiple strings with commas.
+    """
     return ','.join(args)
 
 
@@ -54,103 +55,104 @@ def auth_provider(response: Response) -> t.Optional[str]:
     :param response: HTTP response
     :return: authentication provider
     """
-    auth_header = response.headers.get('Www-Authenticate')
+    auth_header = response.headers.get('Www-Authenticate', '')
     return auth_header.lower().split()[0] if auth_header else None
 
 
 class Registry:
-    def __init__(self, conf: ConfigParser) -> None:
+    """
+    Docker Registry API client.
+    """
+
+    # API accept headers for different manifest formats
+    ACCEPT_HEADERS = {
+        'Accept': union(
+            'application/vnd.oci.image.index.v1+json',
+            'application/vnd.docker.distribution.manifest.list.v2+json',
+            'application/vnd.docker.distribution.manifest.v2+json',
+            'application/vnd.oci.image.manifest.v1+json'
+        )
+    }
+
+    # supported authentication providers
+    AUTH_PROVIDERS = ('basic', 'bearer')
+
+    def __init__(
+            self,
+            endpoint: str,
+            username: t.Optional[str] = None,
+            password: t.Optional[str] = None,
+            auth: t.Optional[str] = None
+    ) -> None:
         """
-        :param conf: configuration
+        :param endpoint: registry endpoint
+        :param username: (optional) username
+        :param password: (optional) user password
+        :param auth: (optional) authorization string
         """
-        self.conf = conf
+        self.endpoint = endpoint
+        self.auth = auth
+        if not self.auth and username:
+            self.auth = _basic_auth_str(username, password)
 
-        # supported authentication providers:
-        #  - basic: apache htpasswd file
-        self.auth_providers = ('basic', 'bearer',)
-
-        # registry endpoint
-        self.registry_endpoint = self.conf.get('endpoint', 'registry',
-                                               default='')
-        if not self.registry_endpoint:
-            raise KeyError('Registry endpoint not set.'
-                           ' Check configuraion file.')
-
-        # api accept headers list
-        self.accept = {
-            'Accept': union(
-                'application/vnd.oci.image.index.v1+json',
-                'application/vnd.docker.distribution.manifest.list.v2+json',
-                'application/vnd.docker.distribution.manifest.v2+json',
-                'application/vnd.oci.image.manifest.v1+json'
-            )
-        }
-
-    def make_request(self, **kwargs):
-        kwargs['url'] = self.registry_endpoint + kwargs['uri']
+    def make_request(self, **kwargs) -> PreparedRequest:
+        """
+        Create a prepared request.
+        """
+        kwargs['url'] = self.endpoint + kwargs['uri']
         del kwargs['uri']
 
         # add user request headers to request
-        headers = CaseInsensitiveDict(request.headers)
+        request_headers = request.headers if request else None
+        headers = CaseInsensitiveDict(request_headers)
         headers.update(kwargs.pop('headers', {}))
-        headers.pop('Content-Length', None)
-        headers.pop('Cookie', None)
-        headers.pop('User-Agent', None)
-        headers.pop('Host', None)
+        for header in ['Content-Length', 'Cookie', 'User-Agent', 'Host']:
+            headers.pop(header, None)
         kwargs['headers'] = headers
 
         # add auth header to request
-        if 'Authorization' not in headers:
-            kwargs['auth'] = session.get('auth')
+        if self.auth:
+            headers.setdefault('Authorization', self.auth)
 
         req = requests.Request(**kwargs)
         return req.prepare()
 
-    def request(self, method: str, uri: str, **kwargs: t.Any) -> Response:
+    def request(self, method: str, uri: str, bearer_cache: bool = True, **kwargs: t.Any) -> t.Optional[Response]:
         """
         Send HTTP request and return result.
 
-        :param method: HTTP methods (GET, POST, PUT, etc.)
-        :param uri: URI
-        :param kwargs: additional request parameters
-        :return: result of request
+        :param method: HTTP method
+        :param uri: URI path
+        :param bearer_cache: (optional) use cache for bearer auth
+        :param kwargs: (optional) additional request parameters
+        :return: response object
         """
-        kwargs.update({'method': method, 'uri': uri})
-        req = self.make_request(**kwargs)
-        with requests.Session() as request_session:
-            resp = request_session.send(req)
+        max_retries = 3
+        for attempt in range(max_retries):
+            kwargs.update({'method': method, 'uri': uri})
+            req = self.make_request(**kwargs)
 
-        try:
-            check_status(resp)
-        except Unauthorized:
-            # get auth provider: basic, bearer, etc...
-            # raise Unauthorized if provider not supported
-            provider = auth_provider(resp)
-            if provider not in self.auth_providers:
-                raise Unauthorized(
-                    f'Auth provider "{provider}" not supported.')
+            with requests.Session() as session:
+                resp = session.send(req)
 
-            if provider == 'bearer':
-                token = bearer_token(resp)
-                kwargs.setdefault('headers', {})
-                kwargs['headers'].update({'Authorization': f'Bearer {token}'})
-                return self.request(**kwargs)
+            try:
+                check_status(resp)
+                return resp
+            except Unauthorized:
+                provider = auth_provider(resp)
+                if provider not in self.AUTH_PROVIDERS:
+                    raise Unauthorized(f'Auth provider "{provider}" not supported.')
 
-        return resp
+                if provider == 'bearer':
+                    bearer = Bearer(auth=self.auth)
+                    token = bearer.token(resp, cache=bearer_cache)
+                    kwargs.setdefault('headers', {})
+                    kwargs['headers'].update({'Authorization': f'Bearer {token}'})
+                    # disable the cache for Bearer authentication in the next request,
+                    # as the cached token may be invalid
+                    bearer_cache = False
 
-    def login(self, username: str, password: str) -> None:
-        """
-        User authorization in Registry.
-
-        :param username: username
-        :param password: user password
-        """
-        # save auth credentials in session
-        session['auth'] = (username, password)
-
-        # check access ro Registry
-        resp = self.request('HEAD', '/v2/')
-        check_status(resp)
+        raise Unauthorized(f'Maximum authentication attempts exceeded.')
 
     def repositories(self) -> t.List[str]:
         """
@@ -162,7 +164,6 @@ class Registry:
 
         while True:
             resp = self.request('GET', f'/v2/_catalog?n={limit}&last={last}')
-            check_status(resp)
             part_of_repository_list = resp.json().get('repositories', [])
             repository_list.extend(part_of_repository_list)
             if len(part_of_repository_list) < limit:
@@ -171,22 +172,18 @@ class Registry:
 
         return repository_list
 
-    def manifest(self, image: str, tag: str) -> t.Optional[t.Dict]:
+    def manifest(self, image: str, tag: str, digest: t.Optional[str] = None) -> t.Optional[t.Dict]:
         """
         Return image tag manifest.
 
         :param image: image name
         :param tag: image tag
+        :param digest: (optional) tag digest
         :return: manifest
         """
-        params = RequestParams()
-        digest = params.get('digest')
-        manifest = {}
-
-        resp = self.request('GET', f'/v2/{image}/manifests/{tag}',
-                            headers=self.accept)
-        check_status(resp)
-        manifest.update(resp.json())
+        # get manifest
+        resp = self.request('GET', f'/v2/{image}/manifests/{tag}', headers=self.ACCEPT_HEADERS)
+        manifest = resp.json()
 
         # get manifest list
         manifest_list = resp.json().get('manifests')
@@ -197,9 +194,7 @@ class Registry:
 
         # get manifest by digest
         if digest:
-            resp = self.request('GET', f'/v2/{image}/manifests/{digest}',
-                                headers=self.accept)
-            check_status(resp)
+            resp = self.request('GET', f'/v2/{image}/manifests/{digest}', headers=self.ACCEPT_HEADERS)
             manifest.update(resp.json())
 
         # add image digest to manifest
@@ -214,13 +209,11 @@ class Registry:
             return None
 
         config_digest = manifest['config'].get('digest')
-        resp = self.request('GET', f'/v2/{image}/blobs/{config_digest}',
-                            headers=self.accept)
-        check_status(resp)
+        resp = self.request('GET', f'/v2/{image}/blobs/{config_digest}', headers=self.ACCEPT_HEADERS)
         manifest.update(resp.json())
 
         # add image ID to manifest
-        manifest['id'] = resp.headers.get('Docker-Content-Digest')
+        manifest['id'] = resp.headers.get('Docker-Content-Digest', default=config_digest)
         return manifest
 
     def tags(self, image: str) -> t.Optional[t.List[str]]:
@@ -232,7 +225,6 @@ class Registry:
         """
         try:
             resp = self.request('GET', f'/v2/{image}/tags/list')
-            check_status(resp)
             return sorted(resp.json().get('tags', []), key=semver_comparison)
         except (NotFound, TypeError):
             return None
@@ -253,8 +245,7 @@ class Registry:
         if not digest:
             return False
 
-        resp = self.request('DELETE', f'/v2/{image}/manifests/{digest}',
-                            headers=self.accept)
+        resp = self.request('DELETE', f'/v2/{image}/manifests/{digest}', headers=self.ACCEPT_HEADERS)
         check_status(resp)
         return True
 
@@ -268,7 +259,7 @@ class Registry:
         resp = self.make_request(
             method='GET',
             uri=f'/v2/{image}/blobs/{digest}',
-            headers=self.accept
+            headers=self.ACCEPT_HEADERS
         )
         return resp
 
@@ -310,9 +301,7 @@ class Registry:
         parent_id = ''
         for layer in layers:
             layer_digest = layer.get('digest')
-            layer_id = sha256(
-                f'{parent_id}\n{layer_digest}\n'.encode()
-            ).hexdigest()
+            layer_id = sha256(f'{parent_id}\n{layer_digest}\n'.encode()).hexdigest()
 
             # add layer metadata file
             layer_json = {'id': layer_id}

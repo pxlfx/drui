@@ -34,8 +34,33 @@ $(function () {
 
 
 /**
+ * Highlight text.
+ *
+ * @param text
+ * @param element
+ */
+function highlight(text, element) {
+    if (typeof text !== "object") {
+        try {
+            text = JSON.parse(text);
+        } catch (error) {
+            text = text.replaceAll('"', "'");
+        }
+    }
+
+    const converter = new showdown.Converter({
+        tables: true,
+        tasklists: true,
+        simplifiedAutoLink: true,
+    });
+    element.innerHTML = converter.makeHtml("```json\n" + JSON.stringify(text, null, 4) + "\n```");
+    hljs.highlightElement(element.getElementsByTagName("code")[0]);
+}
+
+
+/**
  * Check data for emptiness.
- * 
+ *
  * @param {*} data
  * @return {boolean} true if data is empty, else false
  */
@@ -49,7 +74,7 @@ function isEmpty(data) {
 
 /**
  * Return image size.
- * 
+ *
  * @param {Object} manifest - image manifest
  * @return {number} size of image (bytes)
  */
@@ -63,58 +88,58 @@ function getImageSize(manifest) {
  */
 function setSummary() {
     const summary_index = {
-        "size": {
+        size: {
             icon: "fa fa-ruler",
             data: manifest,
             format: (x) => sizeFormat(getImageSize(x))
         },
-        "os": {
+        os: {
             icon: "fa fa-chalkboard-user",
             data: manifest["os"]
         },
-        "architecture": {
+        architecture: {
             icon: "fa fa-microchip",
             data: manifest["architecture"]
         },
-        "created": {
+        created: {
             icon: "fa fa-clock",
             data: manifest["created"],
             format: (x) => new Date(x).format("%Y/%M/%D")
         },
-        "id": {
+        id: {
             icon: "fa fa-square-binary",
             data: manifest["id"]
         },
-        "digest": {
+        digest: {
             icon: "fa fa-square-binary",
             data: manifest["digest"]
         },
-        "cmd": {
+        cmd: {
             icon: "fa fa-hashtag",
             data: manifest["config"]["Cmd"],
             format: (x) => x.join(" ")
         },
-        "labels": {
+        labels: {
             icon: "fa fa-bookmark",
             data: manifest["config"]["Labels"],
             format: (x) => JSON.stringify(x, null, 4)
         },
-        "volumes": {
+        volumes: {
             icon: "fa fa-server",
             data: manifest["config"]["Volumes"],
             format: (x) => JSON.stringify(x)
         },
-        "entrypoint": {
+        entrypoint: {
             icon: "fa fa-location-dot",
             data: manifest["config"]["Entrypoint"],
             format: (x) => x.join("<br>")
         },
-        "env": {
+        env: {
             icon: "fa fa-align-right",
             data: manifest["config"]["Env"],
             format: (x) => x.join("<br>")
         },
-        "ports": {
+        ports: {
             icon: "fa fa-wifi",
             data: manifest["config"]["ExposedPorts"],
             format: (x) => Object.keys(x).join("<br>")
@@ -123,11 +148,11 @@ function setSummary() {
             icon: "fa fa-house",
             data: manifest["config"]["WorkingDir"]
         },
-        "docker": {
+        docker: {
             icon: "fa fa-docker",
             data: manifest["docker_version"]
         }
-    }
+    };
 
     const dl = document.createElement("dl");
     dl.className = "row text-monospace";
@@ -140,16 +165,22 @@ function setSummary() {
         i.className = `${icon} me-2 small`;
 
         const dt = document.createElement("dt");
-        dt.className = "col-6 col-lg-2 text-nowrap pt-1 pb-1";
+        dt.className = "col-6 col-lg-2 text-nowrap py-1";
         dt.textContent = `${key}:`;
         dt.prepend(i);
         dl.appendChild(dt);
 
-        const dd = document.createElement("dt");
-        dd.className = "col-6 col-lg-10 pt-2 pb-2 fw-normal text-truncate text-end text-md-start";
+        const dd = document.createElement("dd");
+        dd.className = "col-6 col-lg-10 fw-normal text-truncate text-end text-md-start py-1";
         dd.innerHTML = format ? format(data) : data;
-        dd.role = "button";
-        dd.onclick = () => alert(dd.innerHTML);
+        dd.onclick = () => {
+            if (window.innerWidth <= 993) {
+                const offcanvas = new bootstrap.Offcanvas("#offcanvasActionMenu");
+                const offcanvas_body = offcanvas._element.querySelectorAll(".offcanvas-body")[0];
+                highlight(dd.innerText, offcanvas_body);
+                offcanvas.show();
+            }
+        };
         dl.appendChild(dd);
     });
 }
@@ -163,12 +194,18 @@ function setHistory() {
 
     const ol = document.createElement("ol");
     ol.className = "list-group list-group-numbered";
-    manifest.history.forEach(value => {
+    manifest.history.forEach((value) => {
         const li = document.createElement("li");
         li.textContent = value.created_by;
         li.className = "list-group-item list-group-item-action text-monospace text-truncate small w-100 border-0";
-        li.role = "button";
-        li.onclick = () => alert(li.innerText);
+        li.onclick = () => {
+            if (window.innerWidth <= 993) {
+                const offcanvas = new bootstrap.Offcanvas("#offcanvasActionMenu");
+                const offcanvas_body = offcanvas._element.querySelectorAll(".offcanvas-body")[0];
+                highlight(li.innerText, offcanvas_body);
+                offcanvas.show();
+            }
+        };
         ol.appendChild(li);
     });
 
@@ -182,12 +219,12 @@ function setHistory() {
 function setTags() {
     const ul = document.createElement("ol");
     ul.className = "list-group text-decoration-underline link-offset-3";
-    tags.reverse().forEach(value => {
+    tags.reverse().forEach((value) => {
         const li = document.createElement("li");
         li.textContent = value;
         li.className = "list-group-item list-group-item-action text-monospace small text-truncate border-0";
         li.role = "button";
-        li.onclick = () => window.location = `/_/${image}/tags/${value}`;
+        li.onclick = () => (window.location = `/_/${image}/tags/${value}`);
         ul.appendChild(li);
     });
 
@@ -199,22 +236,24 @@ function setTags() {
  * Set multiarch.
  */
 function setMultiarch() {
-    const manifest_list = manifest.manifests || [{
-        digest: manifest.digest,
-        platform: {
-            os: manifest.os,
-            architecture: manifest.architecture
+    const manifest_list = manifest.manifests || [
+        {
+            digest: manifest.digest,
+            platform: {
+                os: manifest.os,
+                architecture: manifest.architecture
+            }
         }
-    }];
+    ];
 
     const ul = document.createElement("ol");
     ul.className = "list-group text-decoration-underline link-offset-3";
-    manifest_list.forEach(x => {
+    manifest_list.forEach((x) => {
         const li = document.createElement("li");
         li.textContent = `${x.platform.os}/${x.platform.architecture}`;
         li.className = "list-group-item list-group-item-action text-monospace small text-truncate border-0";
         li.role = "button";
-        li.onclick = () => window.location = `/_/${image}/tags/${tag}?digest=${x.digest}`;
+        li.onclick = () => (window.location = `/_/${image}/tags/${tag}?digest=${x.digest}`);
         ul.appendChild(li);
     });
 
@@ -226,15 +265,7 @@ function setMultiarch() {
  * Set image manifest.
  */
 function setInspect() {
-    const converter = new showdown.Converter({
-        tables: true,
-        tasklists: true,
-        simplifiedAutoLink: true
-    });
-
-    const inspect_pane = document.getElementById("inspect-pane");
-    inspect_pane.innerHTML = converter.makeHtml("```json\n" + JSON.stringify(manifest, null, 4) + "\n```");
-    hljs.highlightAll();
+    highlight(manifest, document.getElementById("inspect-pane"));
 }
 
 
@@ -248,82 +279,81 @@ function deleteImage(image) {
         return false;
     }
 
-    alertBox.setOptions({
-        text: `<div>Select some image <b>${image}</b> tags:` +
-            "<div class='mt-2' id='deleted_tags'></div>",
-        accept_text: "Delete image tags" +
-            "<i class='fa fa-gear fa-spin small align-middle ms-1 visually-hidden' id='gear'></i>",
-        closeModal: () => {
-            let table = document.getTableById("deleted_tags");
-            table.selected = [];
-            table._save_state();
-            this.closeModal();
-        },
-        bind: function () {
-            let deleted_tags = document.getTableById("deleted_tags").selected;
-            let delete_errors = [];
-            let delete_queue_count = deleted_tags.length;
+    alertBox
+        .setOptions({
+            text: `<div>Select some image <b>${image}</b> tags:` + "<div class='mt-2' id='deleted_tags'></div>",
+            accept_text:
+                "Delete image tags" +
+                "<i class='fa fa-gear fa-spin small align-middle ms-1 visually-hidden' id='gear'></i>",
+            closeModal: () => {
+                let table = document.getTableById("deleted_tags");
+                table.selected = [];
+                table._saveState();
+                this.closeModal();
+            },
+            bind: function () {
+                let deleted_tags = document.getTableById("deleted_tags").selected;
+                let delete_errors = [];
+                let delete_queue_count = deleted_tags.length;
 
-            if (!deleted_tags.length) {
-                modal_error("Please select some tags.");
-                return false;
-            }
+                if (!deleted_tags.length) {
+                    modal_error("Please select some tags.");
+                    return false;
+                }
 
-            // animate delete process
-            window.onbeforeunload = () => "";
-            document.getElementById("modal_save").disabled = true;
-            document.getElementById("modal_cancel").classList.add("visually-hidden");
-            document.getElementById("gear").classList.remove("visually-hidden");
+                // animate delete process
+                window.onbeforeunload = () => "";
+                document.getElementById("modal_save").disabled = true;
+                document.getElementById("modal_cancel").classList.add("visually-hidden");
+                document.getElementById("gear").classList.remove("visually-hidden");
 
-            new RequestQueue(
-                deleted_tags,
-                (tag) => {
-                    return {
-                        url: `/_/${image}/tags/${tag}`,
-                        data: "format=json",
-                        type: "DELETE",
-                        async: true,
-                        complete: (XHR) => {
-                            delete_queue_count--;
+                new RequestQueue(
+                    deleted_tags,
+                    (tag) => {
+                        return {
+                            url: `/_/${image}/tags/${tag}`,
+                            data: "format=json",
+                            type: "DELETE",
+                            async: true,
+                            complete: (XHR) => {
+                                delete_queue_count--;
 
-                            if (XHR.status !== 200) {
-                                delete_errors.push(`<b>${tag}</b>: ${XHR.responseText}`);
-                            }
+                                if (XHR.status !== 200) {
+                                    delete_errors.push(`<b>${tag}</b>: ${XHR.responseText}`);
+                                }
 
-                            if (delete_queue_count === 0) {
-                                window.onbeforeunload = undefined;
-                                document.getElementById("modal_save").disabled = false;
-                                document.getElementById("modal_cancel").classList.remove("visually-hidden");
-                                document.getElementById("gear").classList.add("visually-hidden");
+                                if (delete_queue_count === 0) {
+                                    window.onbeforeunload = undefined;
+                                    document.getElementById("modal_save").disabled = false;
+                                    document.getElementById("modal_cancel").classList.remove("visually-hidden");
+                                    document.getElementById("gear").classList.add("visually-hidden");
 
-                                if (delete_errors.length) {
-                                    modal_error(delete_errors.join("<br>"));
-                                } else {
-                                    alert("Delete finished.");
+                                    if (delete_errors.length) {
+                                        modal_error(delete_errors.join("<br>"));
+                                    } else {
+                                        alert("Delete finished.");
+                                    }
                                 }
                             }
-                        }
-                    };
-                },
-                5
-            ).run();
+                        };
+                    },
+                    5
+                ).run();
 
-            return false;
-        }
-    }).show();
+                return false;
+            }
+        })
+        .show();
 
     new Table({
         element: document.getElementById("deleted_tags"),
-        headers: [
-            { name: "tag" },
-        ],
+        headers: [{ name: "tag" }],
         data: tags.map((x) => [x, x]),
         className: "table table-sm table-hover table-borderless",
-        theadClassName: "table-sm",
+        theadClassName: "table table-sm p-2",
         height: 200,
         index_by: 0,
-        limit: 50,
-        filter: true
+        limit: 50
     }).view();
 }
 
@@ -339,7 +369,7 @@ function viewJSON(json) {
     let data = [];
     Object.keys(json).forEach(function (key) {
         let val;
-        if (typeof (json[key]) === "object") {
+        if (typeof json[key] === "object") {
             val = JSON.stringify(json[key]);
         } else {
             val = json[key];
@@ -358,7 +388,7 @@ function viewJSON(json) {
         ],
         data: data,
         className: "table table-sm table-hover table-borderless",
-        theadClassName: "table-sm",
+        theadClassName: "table table-sm",
         height: 700
     }).view();
 }
@@ -397,7 +427,7 @@ class RequestQueue {
 
         function next() {
             if (that.workers < that.threads && that.queue.length) {
-                that.run()
+                that.run();
             }
         }
 
@@ -405,7 +435,7 @@ class RequestQueue {
         let unit = this.queue.shift();
 
         return new Promise(() => {
-            let options = (typeof that.options === "function") ? that.options(unit) : that.options;
+            let options = typeof that.options === "function" ? that.options(unit) : that.options;
             let complete = options.complete;
             options.complete = (XDR, status) => {
                 complete(XDR, status);

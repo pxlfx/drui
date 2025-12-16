@@ -4,9 +4,9 @@ from re import match
 from re import sub
 
 import flask
+from flask import render_template
 from werkzeug import Response
-from werkzeug.exceptions import HTTPException
-from werkzeug.exceptions import Unauthorized
+from werkzeug.exceptions import HTTPException, Unauthorized
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from drui import __version__
@@ -17,18 +17,12 @@ from drui.common.logging import get_logger
 from drui.common.utils import RequestParams
 from drui.common.utils import json_answer
 from drui.common.utils import to_json
+from drui.metrics.worker import Metrics
 from drui.middleware import check_response
 from drui.registry import Registry
 
 app = flask.Flask(__name__)
 log = get_logger(__name__)
-
-
-def get_registry() -> Registry:
-    """
-    Return Registry instance.
-    """
-    return getattr(flask.current_app, 'registry')
 
 
 def get_conf() -> ConfigParser:
@@ -38,37 +32,62 @@ def get_conf() -> ConfigParser:
     return getattr(flask.current_app, 'conf')
 
 
+def get_registry() -> Registry:
+    """
+    Return Registry instance.
+    """
+    conf = get_conf()
+    endpoint = conf.get('endpoint', section='registry')
+
+    request_auth = flask.request.headers.get('Authorization')
+    if request_auth:
+        return Registry(endpoint, auth=request_auth)
+
+    username = flask.session.get('username')
+    password = flask.session.get('password')
+    return Registry(endpoint, username=username, password=password)
+
+
 @app.route('/')
-def catalog() -> t.Union[Response, str]:
+@app.route('/r/<path:repo>')
+def catalog(repo: t.Optional[str] = None) -> t.Union[Response, str]:
     """
     Return image list.
+
+    :param repo: repository name
     """
     registry = get_registry()
-    repository_list = registry.repositories()
+    repos = []
+
+    conf = getattr(flask.current_app, 'conf')
+    metrics = Metrics(conf)
+    raw = metrics.raw()
+
+    repositories = registry.repositories()
+    if repo:
+        repositories = list(filter(lambda x: x.startswith(repo), repositories))
+
+    for name in repositories:
+        base_data = {
+            'name': name,
+            'repository': get_repository(name)
+        }
+
+        if raw:
+            image = raw.get(name, {})
+            base_data.update({
+                'size': image.get('size'),
+                'created': image.get('created'),
+                'tags': image.get('tags')
+            })
+
+        repos.append(base_data)
 
     if to_json():
-        return json_answer(repository_list)
+        return json_answer(repos)
     return flask.render_template('repositories.html',
-                                 repositories=repository_list)
-
-
-@app.route('/r/<path:name>')
-def repository(name) -> t.Union[Response, str]:
-    """
-    Return image list, filtered by repository name.
-
-    :param name: repository name
-    :return: image list
-    """
-    registry = get_registry()
-    rl = registry.repositories()
-    repository_list = list(filter(lambda x: x.startswith(name), rl))
-
-    if to_json():
-        return json_answer(repository_list)
-    return flask.render_template('repositories.html',
-                                 repository=name,
-                                 repositories=repository_list)
+                                 repositories=repos,
+                                 repository=repo)
 
 
 @app.route('/_/<path:image>')
@@ -78,12 +97,12 @@ def image_ref(image: str) -> t.Union[Response, str]:
 
     :param image: image name
     """
-    registry = getattr(flask.current_app, 'registry')
+    registry = get_registry()
     tags = registry.tags(image)
     if not tags:
         return flask.render_template('empty.html', image=image)
-    tag = 'latest' if (not tags or 'latest' in tags) else tags[-1]
 
+    tag = 'latest' if (not tags or 'latest' in tags) else tags[-1]
     return flask.redirect(f'/_/{image}/tags/{tag}')
 
 
@@ -96,10 +115,12 @@ def image_tag(image: str, tag: str) -> t.Union[Response, str]:
     :param tag: tag name
     :return: information about image tag
     """
-    registry = getattr(flask.current_app, 'registry')
+    registry = get_registry()
+    params = RequestParams()
+    digest = params.get('digest')
 
     # get image manifest
-    manifest = registry.manifest(image, tag)
+    manifest = registry.manifest(image, tag, digest=digest)
     if not manifest:
         return flask.render_template('empty.html', image=image)
 
@@ -182,9 +203,12 @@ def login() -> t.Union[Response, t.Tuple[str, int]]:
     if not username or not password:
         return flask.render_template('login.html', error=Unauthorized()), 401
 
-    registry = get_registry()
-    registry.login(username, password)
+    # save auth credentials in session
+    flask.session['username'] = username
+    flask.session['password'] = password
 
+    if to_json():
+        return json_answer('login succeeded!')
     return flask.redirect('/')
 
 
@@ -214,6 +238,28 @@ def get_broadcast() -> t.Union[Response, str]:
         return json_answer(broadcast)
     except Exception as error:
         return json_answer(str(error), status_code=500)
+
+
+@app.route('/metrics')
+def get_metrics():
+    """
+    Registry metrics page.
+    """
+    conf = getattr(flask.current_app, 'conf')
+    metrics = Metrics(conf)
+    data = {
+        'stats': metrics.stats(),
+        'size': metrics.size(),
+        'images': metrics.images(),
+        'layers': metrics.layers(),
+        'dublicates': metrics.dublicates(),
+        'newest': metrics.newest(),
+        'oldest': metrics.oldest()
+    }
+
+    if to_json():
+        return json_answer(data)
+    return render_template('metrics.html', metrics=data)
 
 
 @app.template_global('get_repository')
@@ -301,7 +347,6 @@ def init_app(conf: ConfigParser) -> flask.Flask:
     :return: instance of Flask app
     """
     setattr(app, 'conf', conf)
-    setattr(app, 'registry', Registry(conf))
     app.secret_key = conf.get('secret_key', default='secret_key')
 
     # error codes registration
@@ -328,7 +373,13 @@ def init_app(conf: ConfigParser) -> flask.Flask:
             handler.setFormatter(formatter)
 
     # add ProxyFix module for reverse proxy support
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1,
-                            x_port=1, x_prefix=1)
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=1,
+        x_proto=1,
+        x_host=1,
+        x_port=1,
+        x_prefix=1
+    )
 
     return app

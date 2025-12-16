@@ -32,8 +32,8 @@ class TarStream:
 
     Example:
         >>> stream = TarStream()
-        >>> stream.add(b"Hello", "hello.txt")
-        >>> stream.add(b"World", "world.txt")
+        >>> stream.add(b'Hello', 'hello.txt')
+        >>> stream.add(b'World', 'world.txt')
         >>> for chunk in stream.start():
         ...     print(len(chunk))
     """
@@ -47,7 +47,7 @@ class TarStream:
 
         :param data: the actual content (bytes, file-like object, PreparedRequest)
         :param filename: the name of the file in the archive
-        :param symlink: whether this item should be stored as a symlink
+        :param symlink: (optional) whether this item should be stored as a symlink
         """
         self.queue.append(Data(data, filename, symlink))
 
@@ -79,9 +79,7 @@ class TarStream:
                                     with Session() as s:
                                         resp = s.send(item.data, stream=True)
                                     file_data = resp.raw
-                                    file_size = int(
-                                        resp.headers['content-length']
-                                    )
+                                    file_size = int(resp.headers['content-length'])
                                 else:
                                     file_data = item.data
                                     file_size = len(item.data.getvalue())

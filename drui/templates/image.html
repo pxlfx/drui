@@ -1,3 +1,27 @@
+{% macro render_action_menu() %}
+    <ul class="list-group">
+        <!-- image to TAR section (start) -->
+        <li class="list-group-item border-0 px-0 py-1">
+            <a href="/d/{{ image }}/{{ tag }}?digest={{ manifest['digest'] }}" class="dropdown-item d-flex gap-2 align-items-baseline">
+                <i class="fa fa-download small"></i>
+                Download
+            </a>
+        </li>
+        <!-- image to TAR section (end) -->
+        <!-- delete image section (start) -->
+        {% if not conf.getboolean('disable_delete') %}
+            <li class="list-group-item border-0 px-0 py-1">
+                <div role="button" class="dropdown-item d-flex gap-2 align-items-baseline" onclick="deleteImage('{{ image }}')">
+                    <i class="fa fa-trash small"></i>
+                    Delete
+                </div>
+            </li>
+        {% endif %}
+        <!-- delete image section (end) -->
+    </ul>
+{% endmacro %}
+
+
 {% extends "core.html" %}
 {% set repository = get_repository(image) %}
 {% set application = get_application(image) %}
@@ -49,30 +73,26 @@
                 {{ application }}:{{ tag }}
             </li>
             <li class="ms-auto">
-                <div role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <!-- image action menu (start) -->
+                <div class="d-none d-lg-inline" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fa fa-ellipsis"></i>
                 </div>
-                <ul class="dropdown-menu">
-                    <!-- image to TAR section (start) -->
-                    <li>
-                        <a href="/d/{{ image }}/{{ tag }}?digest={{ manifest['digest'] }}" class="dropdown-item">
-                            <i class="fa fa-download small me-1"></i>
-                            <span>download</span>
-                        </a>
-                    </li>
-                    <!-- image to TAR section (end) -->
-                    <!-- delete image section (start) -->
-                    {% if not conf.getboolean('disable_delete') %}
-                        <li>
-                            <div class="dropdown-item" onclick="deleteImage('{{ image }}')">
-                                <i class="fa fa-trash small me-1"></i>
-                                <span>delete</span>
-                            </div>
-                        </li>
-                    {% endif %}
-                    <!-- delete image section (end) -->
-                </ul>
-            </li>
+                <div class="d-lg-none" role="button" data-bs-toggle="offcanvas" data-bs-target="#imageOffcanvasMenu">
+                    <i class="fa fa-ellipsis"></i>
+                </div>
+                <div class="dropdown-menu bg-body px-0">
+                    {{ render_action_menu() }}
+                </div>
+                <div class="offcanvas offcanvas-bottom" id="imageOffcanvasMenu">
+                    <div class="offcanvas-header">
+                        <b class="offcanvas-title" id="offcanvasBottomLabel">Image action</b>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        {{ render_action_menu() }}
+                    </div>
+                </div>
+                <!-- image action menu (end) -->
         </ol>
     </nav>
     <!-- navigate section (end) -->

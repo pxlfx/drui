@@ -38,13 +38,12 @@ def _prepare_error(error: Exception) -> t.Union[Response, t.Tuple[str, int]]:
     return render_template('core.html', error=error), error.code
 
 
-def _get_view_func(url: t.Union[Rule, str],
-                   method: str = 'GET') -> t.Optional[t.Tuple]:
+def _get_view_func(url: t.Union[Rule, str], method: str = 'GET') -> t.Optional[t.Tuple]:
     """
     Return the function to call for the specified URL and method.
 
     :param url: URL
-    :param method: method
+    :param method: (optional) method
     :return: function, function parameters
     """
     adapter = current_app.url_map.bind('localhost')

@@ -2,6 +2,7 @@
 
 import re
 from collections import defaultdict
+from json import dumps
 
 import pytest
 from bs4 import BeautifulSoup
@@ -9,7 +10,7 @@ from bs4 import BeautifulSoup
 # snapshot for URL rules and their corresponding methods
 url_map_snapshot = {
     '/': {'GET', 'HEAD', 'OPTIONS'},
-    '/r/<path:name>': {'GET', 'HEAD', 'OPTIONS'},
+    '/r/<path:repo>': {'GET', 'HEAD', 'OPTIONS'},
     '/_/<path:image>': {'GET', 'HEAD', 'OPTIONS'},
     '/_/<path:image>/tags/<tag>': {'GET', 'HEAD', 'OPTIONS', 'DELETE'},
     '/d/<path:image>/<tag>': {'HEAD', 'OPTIONS', 'GET'},
@@ -17,6 +18,7 @@ url_map_snapshot = {
     '/logout': {'GET', 'HEAD', 'OPTIONS'},
     '/broadcast': {'GET', 'HEAD', 'OPTIONS'},
     '/static/<path:filename>': {'GET', 'HEAD', 'OPTIONS'},
+    '/metrics': {'GET', 'HEAD', 'OPTIONS'}
 }
 
 # path to file with broadcast message
@@ -59,8 +61,9 @@ def test_catalog(client):
 
     pattern = re.compile(r'const repositories = (.*);')
     script = get_script(pattern, response.text)
+    template = [{'name': 'docker.io/distribution', 'repository': 'docker.io'}]
     assert script
-    assert pattern.search(script.text).group(1) == '["docker.io/distribution"]'
+    assert pattern.search(script.text).group(1) == dumps(template)
 
 
 def test_catalog_json(client):
@@ -80,8 +83,9 @@ def test_repository(client):
 
     pattern = re.compile(r'const repositories = (.*);')
     script = get_script(pattern, response.text)
+    template = [{'name': 'docker.io/distribution', 'repository': 'docker.io'}]
     assert script
-    assert pattern.search(script.text).group(1) == '["docker.io/distribution"]'
+    assert pattern.search(script.text).group(1) == dumps(template)
 
 
 def test_repository_json(client):

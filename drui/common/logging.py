@@ -8,10 +8,11 @@ from flask import Flask
 from flask import has_request_context
 from flask import request
 
-from . import config
+from drui.common import config
 
 NOTSET = logging.NOTSET
 conf = config.CONF
+level_names = logging.getLevelNamesMapping()
 
 
 class RequestFormatter(logging.Formatter):
@@ -77,15 +78,14 @@ def get_logger(name: t.Optional[str] = None) -> logging.Logger:
     :param name: <ignoring>
     :return: logging handler
     """
+    level = conf.get('level', section='logging', default='info').upper()
     formatter = RequestFormatter('[%(asctime)s] %(levelname)s %(method)s'
                                  ' %(status_code)s %(url)s %(message)s')
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(level_names[level])
 
-    path = conf.get('path', section='logging')
-    handler = logging.FileHandler(path) if path else logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 

@@ -115,6 +115,19 @@ Below is a detailed explanation of each parameter.
 
 ### logging
 
+#### `level`
+
+- **Description**: the level for log messages. You can use the following
+  placeholders:
+    - `info`
+    - `warning`
+    - `critical`
+    - `debug`
+- **Type**: `string`
+- **Example**: `debug`
+- **Default**: `info`
+- **Environment Variable**: `DRUI_LOGGING_LEVEL`
+
 #### `format`
 
 - **Description**: the format for log messages. You can use the following
@@ -140,6 +153,34 @@ Below is a detailed explanation of each parameter.
 - **Example**: `%Y-%m-%d`
 - **Default**: `%Y-%m-%d %H:%M:%S`
 - **Environment Variable**: `DRUI_LOGGING_DATE_FORMAT`
+
+---
+
+### metrics
+
+#### `enable`
+
+- **Description**: enable metrics
+- **Type**: `bool`
+- **Example**: `true`
+- **Default**: `false` (metrics feature is disabled by default)
+- **Environment Variable**: `DRUI_METRICS_ENABLE`
+
+#### `username`
+
+- **Description**: username for metric worker
+- **Type**: `string`
+- **Example**: `john`
+- **Default**: `<none>`
+- **Environment Variable**: `DRUI_METRICS_USERNAME`
+
+#### `password`
+
+- **Description**: password for metric worker
+- **Type**: `string`
+- **Example**: `secret_password`
+- **Default**: `<none>`
+- **Environment Variable**: `DRUI_METRICS_PASSWORD`
 
 ---
 

@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 
 import argparse
+import atexit
 import sys
+from multiprocessing import Process, util
+from os import environ
 from os.path import abspath
 
-import flask
+from flask import Flask
 from gunicorn.app.base import BaseApplication
 
 from drui import __version__
+from drui import metrics
 from drui.app import init_app
 from drui.common.config import CONF
 
@@ -74,21 +78,18 @@ def load_configuration(config_path: str) -> None:
     :return:
     """
     if config_path and not CONF.read(config_path):
-        print(
-            f'ERROR: cannot read configuration file: {abspath(config_path)}',
-            file=sys.stderr)
+        print(f'ERROR: cannot read configuration file: {abspath(config_path)}', file=sys.stderr)
         sys.exit(2)
 
 
-def print_startup_info(config_path: str, host: str, port: int,
-                       registry_endpoint: str) -> None:
+def print_startup_info(config_path: str, host: str, port: int, registry_endpoint: str) -> None:
     """
     Print startup information.
 
     :param config_path: path to the configuration file
     :param host: host for listening
     :param port: port for listening
-    :param registry_endpoint:  Docker Registry endpoint
+    :param registry_endpoint: registry endpoint
     :return:
     """
     print(
@@ -99,8 +100,7 @@ def print_startup_info(config_path: str, host: str, port: int,
     )
 
 
-def run_application(server: flask.Flask, host: str, port: int,
-                    dev_mode: bool) -> None:
+def run_application(server: Flask, host: str, port: int, dev_mode: bool) -> None:
     """
     Run the application in either development or production mode.
 
@@ -131,6 +131,15 @@ def main() -> None:
     port = CONF.getint('port', default=8000)
     registry_endpoint = CONF.get('endpoint', 'registry')
 
+    # start metrics worker
+    if CONF.getboolean('enable', section='metrics') and not environ.get('WERKZEUG_RUN_MAIN'):
+        exit_function = getattr(util, '_exit_function')
+        atexit.unregister(exit_function)
+
+        worker = Process(target=metrics.run, kwargs={'conf': CONF})
+        worker.start()
+
+    # start DRUI
     print_startup_info(args.config, host, port, registry_endpoint)
     server = init_app(CONF)
     run_application(server, host, port, args.dev_mode)

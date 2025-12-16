@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import typing as t
 
 from flask import jsonify
@@ -8,8 +7,6 @@ from flask import request
 from requests.models import Response
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
-
-log = logging.getLogger(__name__)
 
 
 def check_status(resp: t.Optional[Response]) -> None:
@@ -25,9 +22,9 @@ def check_status(resp: t.Optional[Response]) -> None:
 def json_answer(message: t.Any, status_code: int = 200) -> Response:
     """
     Returns correctly formed data for transmission in JSON format.
-    
+
     :param message: data in any format
-    :param status_code: response status code
+    :param status_code: (optional) response status code
     :return: response in JSON
     """
     if isinstance(message, HTTPException):
@@ -67,7 +64,7 @@ class RequestParams:
         Return the value by key or default.
 
         :param key: key
-        :param default: default value if key does not exist
+        :param default: (optional) default value if key does not exist
         :return: value or default
         """
         return self.params.get(key.lower(), default)
@@ -78,4 +75,4 @@ def to_json() -> bool:
     Returns True if data is requested in JSON format.
     """
     params = RequestParams()
-    return params.get('format') == 'json'
+    return request.is_json or params.get('format') == 'json'

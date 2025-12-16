@@ -11,8 +11,8 @@ let _core_;
             this.setTheme(this.theme);
 
             // change favicon
-            const light_icon = document.querySelector('link#light_icon');
-            const dark_icon = document.querySelector('link#dark_icon');
+            const light_icon = document.querySelector("link#light_icon");
+            const dark_icon = document.querySelector("link#dark_icon");
             if (this.getTheme(false) === "dark") {
                 light_icon.remove();
                 document.head.append(dark_icon);
@@ -26,7 +26,7 @@ let _core_;
          * Return active theme name.
          *
          * @param {boolean} cache: use cache
-         * @return {string} active theme name   
+         * @return {string} active theme name
          */
         getTheme(cache = true) {
             let theme = localStorage.getItem("core::theme");
@@ -52,32 +52,45 @@ let _core_;
          */
         toggleTheme() {
             const newTheme = this.theme === "dark" ? "light" : "dark";
+            const is_dark = newTheme === "dark";
             this.setTheme(newTheme);
 
-            const coreThemeIcon = document.getElementById("core_theme_icon");
-            if (coreThemeIcon) {
-                coreThemeIcon.classList.toggle("fa-sun");
-                coreThemeIcon.classList.toggle("fa-moon");
-            }
+            const core_theme_box = document.getElementsByClassName("core_theme");
+            [...core_theme_box].forEach((element) => {
+                if (element.nodeName === "INPUT" && element.type === "checkbox") {
+                    element.checked = is_dark;
+                } else if (element.nodeType !== "SVG") {
+                    element.classList.toggle("fa-sun");
+                    element.classList.toggle("fa-moon");
+                }
+            });
         }
     }
 
     _core_ = new Core();
-}());
+})();
 
 
 window.onload = () => {
     // create theme icon
-    let theme_icon = _core_.theme === "dark" ? "fa fa-moon" : "fa fa-sun";
-    let i = document.createElement("i");
-    i.id = "core_theme_icon";
-    i.className = `${theme_icon} small`;
-    const core_theme_box = document.getElementById("core_theme");
-    if (core_theme_box) core_theme_box.appendChild(i);
+    const is_dark = _core_.theme === "dark";
+    const theme_icon = is_dark ? "fa fa-moon" : "fa fa-sun";
+
+    const core_theme_box = document.getElementsByClassName("core_theme");
+    [...core_theme_box].forEach((element) => {
+        if (element.nodeName === "INPUT" && element.type === "checkbox") {
+            element.checked = is_dark;
+        } else {
+            const i = document.createElement("i");
+            i.className = `${theme_icon} core_theme small`;
+            element.appendChild(i);
+        }
+    });
 
     // activate tooltips
     tooltip();
 };
+
 
 /**
  * Transformation bytes to KB, MB, GB, TB, PB.
@@ -92,7 +105,7 @@ function sizeFormat(bytes) {
         return NaN;
     }
 
-    const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    const units = ["B", "KB", "MB", "GB", "TB", "PB"];
     let unit_index = 0;
     while (size >= 1000 && unit_index < units.length - 1) {
         size /= 1000;
@@ -117,19 +130,55 @@ function sizeFormat(bytes) {
  */
 Date.prototype.format = function (f) {
     const replacements = {
-        '%Y': this.getFullYear().toString(),
-        '%M': ("0" + (this.getMonth() + 1)).slice(-2),
-        '%D': ("0" + this.getDate()).slice(-2),
-        '%h': ("0" + this.getHours()).slice(-2),
-        '%m': ("0" + this.getMinutes()).slice(-2),
-        '%s': ("0" + this.getSeconds()).slice(-2)
+        "%Y": this.getFullYear().toString(),
+        "%M": ("0" + (this.getMonth() + 1)).slice(-2),
+        "%D": ("0" + this.getDate()).slice(-2),
+        "%h": ("0" + this.getHours()).slice(-2),
+        "%m": ("0" + this.getMinutes()).slice(-2),
+        "%s": ("0" + this.getSeconds()).slice(-2)
     };
 
     for (const [key, value] of Object.entries(replacements)) {
-        f = f.replace(new RegExp(key, 'g'), value);
+        f = f.replace(new RegExp(key, "g"), value);
     }
     return f;
 };
+
+
+/**
+ * Create <span> element with last modified time.
+ *
+ * @param {number|string} date - time (in seconds)
+ * @returns {HTMLSpanElement}
+ */
+function lastModified(date) {
+    let today = new Date();
+    let last_modified = new Date(date);
+    let delta = parseInt(((today - last_modified) / 86400000).toFixed());
+
+    let span = document.createElement("span");
+    span.title = last_modified.format("%Y-%M-%D, %h:%m:%s");
+    span.className = "text-nowrap";
+    span.setAttribute("data-bs-toggle", "tooltip");
+
+    if (delta / 365 > 0) {
+        span.textContent = (delta / 365).toFixed() + " years ago";
+    }
+
+    if (delta < 365) {
+        span.textContent = (delta / 30).toFixed() + " months ago";
+    }
+
+    if (delta < 30) {
+        span.textContent = delta + " days ago";
+    }
+
+    if (delta === 0) {
+        span.textContent = "today";
+    }
+
+    return span;
+}
 
 
 /**
@@ -159,7 +208,7 @@ function createButton(options = {}) {
 
     if (options.icon) {
         const i = document.createElement("i");
-        i.className = `fa ${options.icon} ${options.text ? 'me-1 small' : ''}`;
+        i.className = `fa ${options.icon} ${options.text ? "me-1 small" : ""}`;
         button.prepend(i);
     }
 
@@ -215,14 +264,14 @@ function clipboard(text, options = {}) {
     input.type = "text";
     input.style.maxWidth = "200px";
     input.style.textOverflow = "ellipsis";
-    input.className = `clipboard form-control text-start m-1 border-0 ${options.input_class_name || ''}`;
+    input.className = `clipboard form-control text-start m-1 border-0 ${options.input_class_name || ""}`;
     input.value = text;
 
     const div_append = document.createElement("div");
     div_append.className = "input-group-append";
 
     const span = document.createElement("div");
-    span.className = `input-group-text btn ${options.icon_class_name || ''}`;
+    span.className = `input-group-text btn ${options.icon_class_name || ""}`;
 
     const i = document.createElement("i");
     i.className = "fa fa-clipboard";
@@ -243,7 +292,7 @@ function clipboard(text, options = {}) {
             document.body.prepend(text_area);
             text_area.select();
             try {
-                document.execCommand('copy');
+                document.execCommand("copy");
             } catch (error) {
                 console.error(error);
             } finally {
@@ -285,13 +334,19 @@ function markToBadge(mark, options = {}) {
         official: {
             text: "Official Image",
             icon: "fa-certificate",
-            className: "text-success ps-0",
+            className: "text-success opacity-75",
             title: "Official Images are a curated set of Docker open source."
         },
         verified: {
             text: "Verified Publisher",
             icon: "fa-shield",
-            className: "text-primary ps-0",
+            className: "text-primary opacity-75",
+            title: "High-quality images from publishers verified by administration."
+        },
+        "": {
+            text: "",
+            icon: "fa-sun",
+            className: "text-secondary opacity-0",
             title: "High-quality images from publishers verified by administration."
         }
     };
@@ -304,5 +359,5 @@ function markToBadge(mark, options = {}) {
  * initialize tooltips.
  */
 function tooltip() {
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => new bootstrap.Tooltip(el));
 }

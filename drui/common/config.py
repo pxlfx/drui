@@ -21,7 +21,7 @@ def get_env(func: t.Callable) -> t.Callable:
          environment variable name.
 
         :param option: option name
-        :param section: section
+        :param section: (optional) section
         :return: environment variable name
         """
         prefix = 'drui'

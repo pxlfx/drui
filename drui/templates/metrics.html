@@ -1,0 +1,56 @@
+{% extends "core.html" %}
+
+{% block head %}
+    <script src="{{ url_for('static', filename='js/metrics.js') }}"></script>
+
+    <script>
+        const metrics = {{ metrics | tojson }};
+    </script>
+{% endblock %}
+
+{% block main %}
+    {% if not conf.getboolean("enable", "metrics") %}
+        <div class="alert alert-primary text-center">
+            The metrics collection service is not running.
+        </div>
+    {% else %}
+        <div class="mb-4">
+            <div class="d-inline" id="stats.status"></div>
+            <div class="badge text-bg-dark" id="stats.timestamp"></div>
+            {% if metrics['stats']['status'] == 'error' %}
+                <div class="alert alert-danger mt-4" id="stats.message"></div>
+            {% endif %}
+        </div>
+
+        <h5 class="fw-light">Registry information</h5>
+
+        <div class="row gap-2 p-2">
+            <div>Size: <span id="size"></span></div>
+            <div>Images: <span id="images"></span></div>
+            <div>Layers: <span id="layers"></span></div>
+        </div>
+
+        <hr>
+
+        <div class="row gap-2 p-2">
+            <div class="card border-0">
+                <h5>Dublicates</h5>
+                <div id="dublicates"></div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row gap-2 p-2">
+            <div class=" col-md-12 col-lg">
+                <h5 class="mb-2">Newest</h5>
+                <div id="newest"></div>
+            </div>
+
+            <div class="col-md-12 col-lg mb-2">
+                <h5>Oldest</h5>
+                <div id="oldest"></div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
