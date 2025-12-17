@@ -8,6 +8,15 @@
     <script src="{{ url_for('static', filename='js/repositories.js') }}"></script>
 
     <style>
+        :root,
+        [data-bs-theme="light"] {
+            --bs-card-bg: #fff;
+        }
+
+        [data-bs-theme="dark"] {
+            --bs-card-bg: var(--bs-primary-bg-subtle);
+        }
+
         /* hide third table row on small screen */
         @media only screen and (max-width: 768px) {
             th:nth-child(n + 2),
@@ -19,7 +28,7 @@
                 padding: .5rem .5rem;
                 border: var(--bs-border-width) solid rgba(var(--bs-primary-rgb), .4);
                 border-radius: var(--bs-border-radius);
-                background-color: var(--bs-primary-bg-subtle);
+                background-color: var(--bs-card-bg);
             }
         }
     </style>

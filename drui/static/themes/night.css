@@ -75,8 +75,8 @@
     --bs-body-line-height: 1.5;
     --bs-body-color: #212529;
     --bs-body-color-rgb: 33, 37, 41;
-    --bs-body-bg: #fafbfe;
-    --bs-body-bg-rgb: 250, 251, 254;
+    --bs-body-bg: #f3efee;
+    --bs-body-bg-rgb: 243, 239, 238;
     --bs-emphasis-color: #000;
     --bs-emphasis-color-rgb: 0, 0, 0;
     --bs-secondary-color: rgba(33, 37, 41, 0.75);
@@ -85,8 +85,8 @@
     --bs-secondary-bg-rgb: 233, 236, 239;
     --bs-tertiary-color: rgba(33, 37, 41, 0.5);
     --bs-tertiary-color-rgb: 33, 37, 41;
-    --bs-tertiary-bg: #e3e5e6;
-    --bs-tertiary-bg-rgb: 241, 241, 241;
+    --bs-tertiary-bg: #fafbfe;
+    --bs-tertiary-bg-rgb: 250, 251, 254;
     --bs-heading-color: inherit;
     --bs-link-color: #0d6efd;
     --bs-link-color-rgb: 13, 110, 253;
@@ -180,15 +180,15 @@
 /* ------ */
 
 .btn {
-    --bs-btn-padding-x: .65rem;
-    --bs-btn-padding-y: .325rem;
-    --bs-btn-font-size: .85rem;
+    --bs-btn-padding-x: 0.65rem;
+    --bs-btn-padding-y: 0.325rem;
+    --bs-btn-font-size: 0.85rem;
 }
 
 .btn-sm {
-    --bs-btn-padding-x: .55rem;
-    --bs-btn-padding-y: .245rem;
-    --bs-btn-font-size: .75rem;
+    --bs-btn-padding-x: 0.55rem;
+    --bs-btn-padding-y: 0.245rem;
+    --bs-btn-font-size: 0.75rem;
 }
 
 .btn-lg {
@@ -685,9 +685,7 @@
     --bs-dropdown-border-color: var(--bs-gray-500);
     --bs-dropdown-border-radius: var(--bs-border-radius);
     --bs-dropdown-border-width: var(--bs-border-width);
-    --bs-dropdown-inner-border-radius: calc(
-            var(--bs-border-radius) - var(--bs-border-width)
-    );
+    --bs-dropdown-inner-border-radius: calc(var(--bs-border-radius) - var(--bs-border-width));
     --bs-dropdown-divider-bg: var(--bs-gray-500);
     --bs-dropdown-divider-margin-y: 0.5rem;
     --bs-dropdown-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
@@ -775,6 +773,11 @@
 /* -------------- */
 /* form and input */
 /* -------------- */
+
+.form-control,
+.form-control:focus {
+    background-color: var(--bs-tertiary-bg);
+}
 
 .form-control,
 .form-select,
@@ -931,7 +934,6 @@
     display: none;
 }
 
-
 /* ------ */
 /* navbar */
 /* ------ */
@@ -962,20 +964,14 @@ a {
     cursor: default !important;
 }
 
-
 /* --------- */
 /* offcanvas */
 /* --------- */
 
 .offcanvas {
-    --bs-offcanvas-height: fit-content;;
-}
-
-.offcanvas-header {
-    padding-top: .5rem;
-    padding-bottom: .5rem;
+    --bs-offcanvas-height: fit-content;
 }
 
 .offcanvas-header .btn-close {
-    font-size: .875em;
+    font-size: 0.875em;
 }
