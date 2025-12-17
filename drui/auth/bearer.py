@@ -49,7 +49,7 @@ def extract_realm(auth_header: str) -> t.Tuple[str, t.Dict[str, str]]:
 
 class Bearer:
     def __init__(self, auth: str):
-        self.auth = auth
+        self.auth = auth or ''
 
     def token(self, resp: requests.Response, cache: bool = True) -> str:
         """
