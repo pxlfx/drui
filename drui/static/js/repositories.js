@@ -92,23 +92,23 @@ function viewRepositories(repositories) {
                 width: "auto",
                 format: (repository, image) => {
                     const a = document.createElement("a");
-                    a.href = "/r/${repository}";
+                    a.href = `/r/${repository}`;
                     a.className = "text-body text-nowrap";
                     a.textContent = repository;
                     return a;
                 }
             },
             tags: {
-                display: "tags" in repositories[0],
+                display: repositories.length && "tags" in repositories[0],
                 width: 200
             },
             size: {
-                display: "size" in repositories[0],
+                display: repositories.length && "size" in repositories[0],
                 width: 200,
                 format: (size) => sizeFormat(size)
             },
             created: {
-                display: "created" in repositories[0],
+                display: repositories.length && "created" in repositories[0],
                 width: 200,
                 format: (timestamp) => lastModified(timestamp)
             },

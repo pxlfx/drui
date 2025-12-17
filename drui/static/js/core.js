@@ -264,7 +264,7 @@ function clipboard(text, options = {}) {
     input.type = "text";
     input.style.maxWidth = "200px";
     input.style.textOverflow = "ellipsis";
-    input.className = `clipboard form-control text-start m-1 border-0 ${options.input_class_name || ""}`;
+    input.className = `clipboard form-control text-start border-0 ${options.input_class_name || ""}`;
     input.value = text;
 
     const div_append = document.createElement("div");
@@ -274,7 +274,7 @@ function clipboard(text, options = {}) {
     span.className = `input-group-text btn ${options.icon_class_name || ""}`;
 
     const i = document.createElement("i");
-    i.className = "fa fa-clipboard";
+    i.className = "fa fa-clipboard align-middle";
 
     span.appendChild(i);
     div_append.appendChild(span);
