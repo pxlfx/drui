@@ -40,9 +40,11 @@ $(function () {
  * @param element
  */
 function highlight(text, element) {
+    const orig_text = text;
     if (typeof text !== "object") {
         try {
-            text = JSON.parse(text);
+            const parsed_text = JSON.parse(text);
+            text = JSON.stringify(parsed_text, null, 4);
         } catch (error) {
             text = text.replaceAll('"', "'");
         }
@@ -53,7 +55,7 @@ function highlight(text, element) {
         tasklists: true,
         simplifiedAutoLink: true,
     });
-    element.innerHTML = converter.makeHtml("```json\n" + JSON.stringify(text, null, 4) + "\n```");
+    element.innerHTML = converter.makeHtml("```json\n" + text + "\n```");
     hljs.highlightElement(element.getElementsByTagName("code")[0]);
 }
 
@@ -94,7 +96,7 @@ function setSummary() {
             format: (x) => sizeFormat(getImageSize(x))
         },
         os: {
-            icon: "fa fa-chalkboard-user",
+            icon: "fa fa-display",
             data: manifest["os"]
         },
         architecture: {
