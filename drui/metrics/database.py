@@ -221,14 +221,14 @@ class Database:
                              ''')
         return result[0] if result else []
 
-    def size(self) -> int:
-        return int(self.search('SELECT SUM(size) AS size FROM [layers]')[0]['size'])
+    def size(self) -> str:
+        return self.search('SELECT SUM(size) AS size FROM [layers]')[0]['size']
 
-    def images(self) -> int:
-        return int(self.search('SELECT COUNT(id) AS images FROM [images]')[0]['images'])
+    def images(self) -> str:
+        return self.search('SELECT COUNT(id) AS images FROM [images]')[0]['images']
 
-    def layers(self) -> int:
-        return int(self.search('SELECT COUNT(id) AS layers FROM [layers]')[0]['layers'])
+    def layers(self) -> str:
+        return self.search('SELECT COUNT(id) AS layers FROM [layers]')[0]['layers']
 
     def dublicates(self) -> t.List[t.Dict[str, t.List[str]]]:
         items = self.search('''
