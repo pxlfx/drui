@@ -5,6 +5,7 @@
 import typing as t
 from json import loads
 from multiprocessing import Process
+from multiprocessing import set_start_method
 from os.path import exists
 from time import sleep
 
@@ -42,6 +43,7 @@ class RegistryServer:
         """
         Start server.
         """
+        set_start_method('fork', force=True)
         self.process = Process(target=self.app.run,
                                args=(self.host, self.port),
                                daemon=True)
