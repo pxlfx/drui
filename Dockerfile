@@ -33,4 +33,4 @@ RUN addgroup appuser && \
 USER appuser
 
 # set the command to run the application
-CMD ["drui", "--config", "${WORKDIR_PATH}/config.cfg"]
+CMD ["drui", "--config", "config.cfg"]
