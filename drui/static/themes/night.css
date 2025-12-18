@@ -972,6 +972,10 @@ a {
     --bs-offcanvas-height: fit-content;
 }
 
+.offcanvas .offcanvas-header {
+    padding-bottom: 0;
+}
+
 .offcanvas-header .btn-close {
     font-size: 0.875em;
 }

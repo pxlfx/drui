@@ -38,17 +38,20 @@
     <!-- ---------------------------- -->
     <!--         Header block         -->
     <!-- ---------------------------- -->
-    <header class="navbar navbar-expand-md bg-body p-2 ps-3 pe-3 fixed-top container">
+    <header class="navbar navbar-expand-md bg-body py-2 px-3 fixed-top container">
         <a class="navbar-brand text-body" href="/">
-            <i class="fa fa-docker me-2"></i>
+            <i class="fa fa-docker me-0"></i>
             <span class="d-none d-lg-inline-block">Docker Registry</span>
         </a>
-        {% block nav %}
+
+        <div class="mx-auto">
+            {% block nav %}
             <div class="me-auto"></div>
-        {% endblock %}
+            {% endblock %}
+        </div>
 
         <!-- right-side header elements -->
-        <div class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas"
+        <div class="navbar-toggler border-0 px-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas"
              aria-controls="offcanvas" aria-label="Toggle navigation">
             <i class="fa fa-bars"></i>
         </div>
@@ -67,29 +70,31 @@
 
                     <!-- metrics link -->
                     {% if conf.getboolean("enable", "metrics") %}
-                        <li class="nav-item d-none d-md-block">
-                            <a href="/metrics" class="nav-link">
-                                <div class="badge text-bg-primary">
-                                    <i class="fa fa-chart-simple me-1"></i>metrics
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item d-md-none w-100">
-                            <a href="/metrics" class="nav-link">Metrics</a>
-                        </li>
+                    <li class="nav-item d-none d-md-block">
+                        <a href="/metrics" class="nav-link">
+                            <div class="badge text-bg-primary">
+                                <i class="fa fa-chart-simple me-1"></i>metrics
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item d-md-none w-100">
+                        <a href="/metrics" class="nav-link">Metrics</a>
+                    </li>
                     {% endif %}
 
                     <!-- switch theme link -->
                     <li class="nav-item d-none d-md-block">
-                        <button class="nav-link core_theme title" title="switch theme" data-bs-toggle="tooltip"
-                                data-bs-title="switch theme" data-bs-placement="bottom" onclick="_core_.toggleTheme()">
+                        <button class="nav-link core_theme title" title="switch theme" data-bs-toggle="tooltip" data-bs-title="switch theme" data-bs-placement="bottom" onclick="_core_.toggleTheme()">
                         </button>
                     </li>
 
                     <!-- logout link -->
                     {% if in_session("username") %}
                         <li class="nav-item">
-                            <a href="/logout" class="nav-link">Logout</a>
+                            <a href="/logout" class="nav-link">
+                                <span class="d-none d-sm-inline">logout</span>
+                                <span class="d-inline d-sm-none">Logout</span>
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -102,6 +107,7 @@
                     <label class="form-check-label" for="flexSwitchCheckDefault">Dark theme</label>
                 </div>
             </div>
+        </div>
     </header>
     <!-- ---------------------------- -->
     <!--       End Header block       -->

@@ -1,11 +1,7 @@
 $(function () {
-    // create element: `docker pull <image>:<tag>`
-    const pull_text = `docker pull ${endpoint}/${image}:${tag}`;
     document.getElementById("pull").appendChild(
         clipboard(pull_text, {
-            input_class_name: "mw-100",
-            icon_class_name: "rounded-end",
-            title: pull_text
+            className: "small"
         })
     );
 
@@ -40,22 +36,24 @@ $(function () {
  * @param element
  */
 function highlight(text, element) {
-    const orig_text = text;
-    if (typeof text !== "object") {
-        try {
-            const parsed_text = JSON.parse(text);
-            text = JSON.stringify(parsed_text, null, 4);
-        } catch (error) {
-            text = text.replaceAll('"', "'");
+    const formatJson = (text) => {
+        if (typeof text === "object") {
+            return JSON.stringify(text, null, 4);
         }
-    }
+
+        try {
+            return JSON.stringify(JSON.parse(text), null, 4);
+        } catch (error) {
+            return text.replace(/"/g, "'");
+        }
+    };
 
     const converter = new showdown.Converter({
         tables: true,
         tasklists: true,
         simplifiedAutoLink: true,
     });
-    element.innerHTML = converter.makeHtml("```json\n" + text + "\n```");
+    element.innerHTML = converter.makeHtml("```json\n" + formatJson(text) + "\n```");
     hljs.highlightElement(element.getElementsByTagName("code")[0]);
 }
 
@@ -177,9 +175,22 @@ function setSummary() {
         dd.innerHTML = format ? format(data) : data;
         dd.onclick = () => {
             if (window.innerWidth <= 993) {
-                const offcanvas = new bootstrap.Offcanvas("#offcanvasActionMenu");
-                const offcanvas_body = offcanvas._element.querySelectorAll(".offcanvas-body")[0];
+                const active_menu = document.getElementById("offcanvasActionMenu");
+                const offcanvas = new bootstrap.Offcanvas(active_menu);
+                const offcanvas_header = active_menu.querySelectorAll(".offcanvas-header")[0];
+                const offcanvas_body = active_menu.querySelectorAll(".offcanvas-body")[0];
+
                 highlight(dd.innerText, offcanvas_body);
+
+                offcanvas_header.prepend(clipboard
+                    (dd.innerText, { className: "text-muted" })
+                );
+                const handler = () => {
+                    offcanvas_header.firstChild.remove();
+                    active_menu.removeEventListener("hidden.bs.offcanvas", handler);
+                };
+                active_menu.addEventListener("hidden.bs.offcanvas", handler);
+
                 offcanvas.show();
             }
         };

@@ -25,7 +25,7 @@ let _core_;
         /**
          * Return active theme name.
          *
-         * @param {boolean} cache: use cache
+         * @param {boolean} cache - use cache
          * @return {string} active theme name
          */
         getTheme(cache = true) {
@@ -243,62 +243,62 @@ function modal_error(text) {
 
 
 /**
+ * Copy text to clipboard.
+ *
+ * @param {string} text - text
+ * @param {HTMLElement} element - HTML element for a temporary block
+ */
+function copyToClipboard(text, element) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+    } else {
+        const text_area = document.createElement("textarea");
+        text_area.value = text;
+        text_area.style.position = "absolute";
+        text_area.style.left = "0";
+        element ? element.appendChild(text_area) : document.body.appendChild(text_area);
+        text_area.tabIndex = 0;
+        text_area.select();
+
+        try {
+            document.execCommand("copy");
+        } catch (error) {
+            console.error(error);
+        } finally {
+            text_area.remove();
+        }
+    }
+}
+
+
+/**
  * Create input element with clipboard button.
  *
  * @param {string} text - input element text
  * @param {Object} options - parameters:
- *   - {string} input_class_name - CSS classes of input element
- *   - {string} icon_class_name - CSS classes of clipboard button
+ *   - {string} className - CSS classes of element
  * @return {HTMLDivElement} input element with clipboard button
  */
 function clipboard(text, options = {}) {
+    const icon = document.createElement("i");
+    icon.className = `fa fa-clipboard align-middle ${options.className}`;
+
     const div = document.createElement("div");
-    div.className = "input-group input-group-sm flex-nowrap form-control p-0";
+    div.role = "button";
+    div.className = "px-2 py-1";
+    div.tabIndex = 1;
+    div.appendChild(icon);
 
-    if (options.title) {
-        div.setAttribute("data-bs-toggle", "tooltip");
-        div.setAttribute("data-bs-title", options.title);
-    }
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.style.maxWidth = "200px";
-    input.style.textOverflow = "ellipsis";
-    input.className = `clipboard form-control text-start border-0 ${options.input_class_name || ""}`;
-    input.value = text;
-
-    const div_append = document.createElement("div");
-    div_append.className = "input-group-append";
-
-    const span = document.createElement("div");
-    span.className = `input-group-text btn ${options.icon_class_name || ""}`;
-
-    const i = document.createElement("i");
-    i.className = "fa fa-clipboard align-middle";
-
-    span.appendChild(i);
-    div_append.appendChild(span);
-    div.appendChild(input);
-    div.appendChild(div_append);
-
-    div_append.addEventListener("click", () => {
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(input.value);
-        } else {
-            const text_area = document.createElement("textarea");
-            text_area.value = input.value;
-            text_area.style.position = "absolute";
-            text_area.style.left = "-999999px";
-            document.body.prepend(text_area);
-            text_area.select();
-            try {
-                document.execCommand("copy");
-            } catch (error) {
-                console.error(error);
-            } finally {
-                text_area.remove();
-            }
-        }
+    div.addEventListener("click", (e) => {
+        copyToClipboard(text, div);
+        const icon = div.firstChild;
+        icon.classList.remove("fa-clipboard");
+        icon.classList.add("fa-clipboard-check");
+        setTimeout(() => {
+            const icon = div.firstChild;
+            icon.classList.remove("fa-clipboard-check");
+            icon.classList.add("fa-clipboard");
+        }, 5000);
     });
 
     return div;

@@ -1,3 +1,5 @@
+{% set pull_text = 'docker pull %s/%s:%s' %(get_endpoint(), image, tag) %}
+
 {% macro render_action_menu() %}
     <ul class="list-group">
         <!-- image to TAR section (start) -->
@@ -36,6 +38,11 @@
     <script src="{{ url_for('static', filename='js/image.js') }}"></script>
 
     <style>
+        #pull_text {
+            max-width: 200px;
+            text-overflow: ellipsis;
+        }
+
         ol.list-group-numbered li:before {
             min-width: 25px !important;
             display: inline-block;
@@ -45,10 +52,9 @@
     </style>
 
     <script>
-        const endpoint = "{{ get_endpoint() }}";
+        const pull_text = "{{ pull_text }}";
         const image = "{{ image | safe }}";
         const tags = {{ tags | tojson | safe }};
-        const tag = "{{ tag | safe }}";
         const manifest = {{ manifest | tojson | safe }};
     </script>
 {% endblock %}
@@ -118,7 +124,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 p-0 pt-2" id="pull"></div>
+        <div class="col-12 col-md-3 p-0 pt-2">
+            <div class="input-group input-group-sm form-control p-0" data-bs-toggle="tooltip"
+                 data-bs-title="{{ pull_text }}">
+                <input type="text" class="form-control border-0 mw-100" id="pull_text" aria-label=""
+                       value="{{ pull_text }}">
+                <div class="input-group-append">
+                    <div class="input-group-text rounded-end p-0 border-0" id="pull"></div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- basic tag information section (end) -->
 
