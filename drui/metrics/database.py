@@ -15,7 +15,7 @@ class Database:
 
     def __init__(self, conf):
         self.conf = conf
-        self.path: str = conf.get('path', 'database', default='./metrics.db')
+        self.path: str = './metrics.db'
         self._init_db()
 
         # remove the database file if the registry URL has changed
