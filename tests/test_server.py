@@ -170,6 +170,15 @@ def test_disable_delete_image_tag(config, client):
     assert_response(response, status_code=405)
 
 
+def test_metrics(client):
+    """
+    Test the metrics endpoint with JSON format.
+    """
+    response = client.get('/metrics', data={'format': 'json'})
+    assert_response(response)
+    assert_response(response, status_code=200, json_check=True)
+
+
 @pytest.mark.parametrize('client', [{'auth': True}], indirect=True)
 def test_check_auth(client):
     """
