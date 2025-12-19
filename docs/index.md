@@ -5,9 +5,10 @@ Docker Registry.
 
 ---
 
-### Content
+## Content
 
 - [quickstart](quickstart.md): quickly set up and run **DRUI** using Docker
 - [configuration](configuration.md): the configuration file parameters
+- [metrics](metrics.md): enable and configure metrics collection
 - [build](build.md) : build and install **DRUI** from source code
 - [reverse proxy](reverse_proxy.md): setting up a reverse proxy

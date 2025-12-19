@@ -28,9 +28,10 @@ server {
 ```
 
 > [!NOTE]
+>
 > * replace `server_name your-domain.io` with your actual domain name
 > * replace `proxy_pass http://127.0.0.1:8000` with your actual DRUI address
-> * replace ` proxy_set_header X-Forwarded-Prefix /reg/` with your actual DRUI
+> * replace `proxy_set_header X-Forwarded-Prefix /reg/` with your actual DRUI
 >   site prefix
 
 ## Using Apache as a Reverse Proxy
@@ -49,6 +50,7 @@ Add the following parameters for your Apache configuration:
    ```
 
 > [!NOTE]
+>
 > * replace `server_name your-domain.io` with your actual domain name
 > * replace `ProxyPass / http://127.0.0.1:8000/` with your actual DRUI address
 > * replace `ProxyPassReverse / http://127.0.0.1:8000/` with your actual DRUI
@@ -58,5 +60,5 @@ Add the following parameters for your Apache configuration:
 
 ## Next Steps
 
-- Visit the [GitHub repository](https://github.com/pxlfx/drui) for more
+* Visit the [GitHub repository](https://github.com/pxlfx/drui) for more
   information, issues, and contributions.

@@ -96,9 +96,9 @@ docker-compose up -d
 ```
 
 This will start both DRUI and the Docker Registry in detached mode. You can
-access DRUI at http://127.0.0.1:8000.
+access DRUI at <http://127.0.0.1:8000>.
 
-## Additional Tips:
+## Additional Tips
 
 - **Reverse Proxy**: if you are running DRUI behind a
   [reverse proxy](reverse_proxy.md), make sure to configure the proxy to forward

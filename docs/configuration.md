@@ -6,9 +6,9 @@ Below is a detailed explanation of each parameter.
 
 ---
 
-### DEFAULT
+## DEFAULT
 
-#### `host`
+### `host`
 
 - **Description**: the host address on which DRUI will listen for incoming
   connections
@@ -17,7 +17,7 @@ Below is a detailed explanation of each parameter.
 - **Default**: `0.0.0.0` (listens on all available interfaces)
 - **Environment Variable**: `DRUI_HOST`
 
-#### `port`
+### `port`
 
 - **Description**: the port on which DRUI will listen for incoming connections
 - **Type**: `int`
@@ -25,19 +25,21 @@ Below is a detailed explanation of each parameter.
 - **Default**: `8000`
 - **Environment Variable**: `DRUI_PORT`
 
-#### `secret_key`
+### `secret_key`
 
 - **Description**: a secret key used for session cryptography.
   It is recommended to generate a secure key using the following command:
+
   ```bash
   openssl rand -base64 16
   ```
+
 - **Type**: `string`
 - **Example**: `HL4MwifdGYXfdoZ4pHygbA==`
 - **Default**: `<none>`
 - **Environment Variable**: `DRUI_SECRET_KEY`
 
-#### `disable_delete`
+### `disable_delete`
 
 - **Description**: disables the "delete Docker image" feature in the UI
 - **Type**: `bool`
@@ -45,7 +47,7 @@ Below is a detailed explanation of each parameter.
 - **Default**: `false` (delete feature is enabled by default)
 - **Environment Variable**: `DRUI_DISABLE_DELETE`
 
-#### `images_per_page`
+### `images_per_page`
 
 - **Description**: limits the number of Docker images displayed per page on the
   projects page
@@ -56,9 +58,9 @@ Below is a detailed explanation of each parameter.
 
 ---
 
-### registry
+## registry
 
-#### `endpoint`
+### `endpoint`
 
 - **Description**: the endpoint of the Docker Registry that DRUI will connect
   to
@@ -67,7 +69,7 @@ Below is a detailed explanation of each parameter.
 - **Default**: `<none>` (must be provided)
 - **Environment Variable**: `DRUI_REGISTRY_ENDPOINT`
 
-#### `pull_endpoint`
+### `pull_endpoint`
 
 - **Description**: the endpoint showed in pull-string
   (`docker pull <pull_endpoint>/<image>`)
@@ -78,9 +80,9 @@ Below is a detailed explanation of each parameter.
 
 ---
 
-### broadcast
+## broadcast
 
-#### `path`
+### `path`
 
 - **Description**: the path to a file containing a broadcast message
   (in Markdown). This message will be displayed in the DRUI interface
@@ -91,9 +93,9 @@ Below is a detailed explanation of each parameter.
 
 ---
 
-### mark
+## mark
 
-#### `official_prefix`
+### `official_prefix`
 
 - **Description**: a list of prefixes used to identify official Docker images.
   Images with these prefixes will be marked as "Official Image" in the UI
@@ -102,7 +104,7 @@ Below is a detailed explanation of each parameter.
 - **Default**: `<none>` (no official prefixes by default)
 - **Environment Variable**: `DRUI_MARK_OFFICIAL_PREFIX`
 
-#### `verified_prefix`
+### `verified_prefix`
 
 - **Description**: a list of prefixes used to identify verified Docker images.
   Images with these prefixes will be marked as "Verified Publisher" in the UI
@@ -113,41 +115,41 @@ Below is a detailed explanation of each parameter.
 
 ---
 
-### logging
+## logging
 
-#### `level`
+### `level`
 
 - **Description**: the level for log messages. You can use the following
   placeholders:
-    - `info`
-    - `warning`
-    - `error`
-    - `critical`
-    - `debug`
+  - `info`
+  - `warning`
+  - `error`
+  - `critical`
+  - `debug`
 - **Type**: `string`
 - **Example**: `debug`
 - **Default**: `info`
 - **Environment Variable**: `DRUI_LOGGING_LEVEL`
 
-#### `format`
+### `format`
 
 - **Description**: the format for log messages. You can use the following
   placeholders:
-    - `url`: the requested URL
-    - `remote_addr`: the user's network address
-    - `method`: the HTTP method (e.g., GET, POST)
-    - `status_code`: the HTTP response code
-    - `user_agent`: the User-Agent header
-    - `referer`: the Referer header
-    - `x_forwarded_for`: the X-Forwarded-For header
-    - `content_length`: the response length in bytes
+  - `url`: the requested URL
+  - `remote_addr`: the user's network address
+  - `method`: the HTTP method (e.g., GET, POST)
+  - `status_code`: the HTTP response code
+  - `user_agent`: the User-Agent header
+  - `referer`: the Referer header
+  - `x_forwarded_for`: the X-Forwarded-For header
+  - `content_length`: the response length in bytes
 - **Type**: `string`
 - **Example**: `%(remote_addr)s %(method)s`
 - **Default**:
   `[%(asctime)s] %(levelname)s %(method)s %(status_code)s %(url)s %(message)s`
 - **Environment Variable**: `DRUI_LOGGING_FORMAT`
 
-#### `date_format`
+### `date_format`
 
 - **Description**: the format for the date and time in log messages
 - **Type**: `string`
@@ -157,9 +159,9 @@ Below is a detailed explanation of each parameter.
 
 ---
 
-### metrics
+## metrics
 
-#### `enable`
+### `enable`
 
 - **Description**: enable metrics
 - **Type**: `bool`
@@ -167,7 +169,15 @@ Below is a detailed explanation of each parameter.
 - **Default**: `false` (metrics feature is disabled by default)
 - **Environment Variable**: `DRUI_METRICS_ENABLE`
 
-#### `username`
+### `interval`
+
+- **Description**: metrics collection interval (in minutes)
+- **Type**: `int`
+- **Example**: `1440`
+- **Default**: `60` (every hour)
+- **Environment Variable**: `DRUI_METRICS_INTERVAL`
+
+### `username`
 
 - **Description**: username for metric worker
 - **Type**: `string`
@@ -175,7 +185,7 @@ Below is a detailed explanation of each parameter.
 - **Default**: `<none>`
 - **Environment Variable**: `DRUI_METRICS_USERNAME`
 
-#### `password`
+### `password`
 
 - **Description**: password for metric worker
 - **Type**: `string`
@@ -189,9 +199,11 @@ Below is a detailed explanation of each parameter.
 
 - **Configuration File**: you can provide a configuration file
   when running DRUI. For example:
+
   ```bash
   docker run --volume /path/to/config.cfg:/etc/drui/config.cfg ghcr.io/pxlfx/drui:latest
   ```
+
 - **Environment Variables**: all configuration parameters can be set using
   environment variables
 - **Security**: ensure that sensitive information (e.g., `secret_key`) is kept

@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/release/pxlfx/drui.svg)](LICENSE)
+[![Release](https://img.shields.io/github/release/pxlfx/drui.svg)](https://github.com/pxlfx/drui/releases/latest)
 
 <div align="center">
   <img src="docs/images/logo.png" alt="drui-logo"/>
@@ -19,8 +19,7 @@ in your private or public Docker registry.
 
 ## Demo
 
-https://drui.pxlfx.dev
-
+<https://drui.pxlfx.dev>
 
 ## Features
 
@@ -34,20 +33,25 @@ https://drui.pxlfx.dev
   <br />
 </div>
 
+- **Auth**: basic auth / bearer token auth support
 - **Image Catalog Overview**: browse through all available images in the
   registry
-- **Image Details**:
-    - **summary**: view essential information about an image
-    - **history**: show image history (build steps)
-    - **tags**: list all tags associated with the image
-    - **os/arch**: display os/arch for multi-architecture images
-    - **inspect**: inspect detailed metadata of the image
-- **Tag Management**: download and delete specific tags from images
 - **Filtering**: search and filter images by name
 - **Repository Browsing**: explore images within a specific repository
+- **Image Details**:
+  - **summary**: view essential information about an image
+  - **tags**: list all tags associated with the image
+  - **inspect**: inspect detailed metadata of the image
+  - **history**: show image history (build steps)
+  - **os/arch**: display os/arch for multi-architecture images
+- **Tag Management**:
+  - download a specific image tag as a Docker Archive (`tar` file)
+  - delete specific tags from images
+- **Registry Analytics & Metrics**:
+  - view statistics on image count, disk usage, etc
+  - integrated system for data analysis and registry metrics collection
 - **Image Marking**: identify official and verified publisher images
-- **Auth**: basic auth / bearer token auth support in web interface
-- **Theme**: dark/ligth theme in web interface
+- **Theme**: dark/light theme in web interface
 - **Mobile View**: support mobile view
 
 ## Quickstart

@@ -11,6 +11,7 @@ source code.
    git clone https://github.com/pxlfx/drui
    cd drui
    ```
+
    > [!NOTE]
    > This will download the source code and navigate you into the project
    > directory.
@@ -33,6 +34,7 @@ source code.
    ```bash
    drui --version
    ```
+
    > [!NOTE]
    > This command should output the current version of DRUI, confirming that
    > the installation was successful.
