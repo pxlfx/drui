@@ -17,7 +17,7 @@ def run(conf: ConfigParser) -> None:
     parent_pid = getppid()
 
     metrics = Metrics(conf)
-    interval = 3600
+    interval = conf.getint('interval', section='metrics', default=60) / 60
     error_count = 0
 
     while True:
@@ -26,19 +26,22 @@ def run(conf: ConfigParser) -> None:
         except OSError:
             exit(0)
 
-        stats = metrics.stats()
-        if stats:
-            timestamp = datetime.fromisoformat(stats.get('timestamp'))
-            status = stats.get('status')
-            seconds = (datetime.now() - timestamp).total_seconds()
-            diff = interval - seconds
+        try:
+            stats = metrics.stats()
+            if stats:
+                timestamp = datetime.fromisoformat(stats.get('timestamp'))
+                status = stats.get('status')
+                seconds = (datetime.now() - timestamp).total_seconds()
+                diff = interval - seconds
 
-            if status == STATUSES.completed:
-                sleep(diff if diff >= 0 else 0)
-            elif STATUSES.error:
-                error_count += 1
-                if error_count >= 3:
-                    exit(2)
-                sleep(60)
+                if status == STATUSES.completed:
+                    sleep(diff if diff >= 0 else 0)
+                elif STATUSES.error:
+                    error_count += 1
+                    if error_count >= 3:
+                        exit(2)
+                    sleep(60)
+        except KeyboardInterrupt:
+            exit(1)
 
         metrics.run()

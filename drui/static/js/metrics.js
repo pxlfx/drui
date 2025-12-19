@@ -97,6 +97,14 @@ $(function () {
 });
 
 
+/**
+ * Flattens a nested object into a single-level object.
+ *
+ * @param {Object} obj - the nested object to flatten
+ * @param {string} parentKey - (internal) parent key path
+ * @param {Object} result - (internal) accumulator object
+ * @return {Object} single-level object
+ */
 function flattenObject(obj, parentKey = "", result = {}) {
     for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -118,10 +126,16 @@ function flattenObject(obj, parentKey = "", result = {}) {
 }
 
 
-function getList(value) {
+/**
+ * Generates a list of image tag links.
+ *
+ * @param {Array} images - list of images in the format "image:tag"
+ * @returns {HTMLElement} - "<ol>" element with list items
+ */
+function getList(images) {
     const ol = document.createElement("ol");
     ol.className = "list-group list-group-numbered";
-    value.forEach((image) => {
+    images.forEach((image) => {
         const [repo, tag] = image.split(":");
         const li = document.createElement("li");
         li.innerHTML = `<a href="/_/${repo}/tags/${tag}">${image}</a>`;
