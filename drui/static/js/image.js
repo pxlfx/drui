@@ -30,49 +30,6 @@ $(function () {
 
 
 /**
- * Highlight text.
- *
- * @param text
- * @param element
- */
-function highlight(text, element) {
-    const formatJson = (text) => {
-        if (typeof text === "object") {
-            return JSON.stringify(text, null, 4);
-        }
-
-        try {
-            return JSON.stringify(JSON.parse(text), null, 4);
-        } catch (error) {
-            return text.replace(/"/g, "'");
-        }
-    };
-
-    const converter = new showdown.Converter({
-        tables: true,
-        tasklists: true,
-        simplifiedAutoLink: true,
-    });
-    element.innerHTML = converter.makeHtml("```json\n" + formatJson(text) + "\n```");
-    hljs.highlightElement(element.getElementsByTagName("code")[0]);
-}
-
-
-/**
- * Check data for emptiness.
- *
- * @param {*} data
- * @return {boolean} true if data is empty, else false
- */
-function isEmpty(data) {
-    if (data === null || data === undefined) return true;
-    if (Array.isArray(data) && !data.length) return true;
-    if (typeof data === "object" && !Object.keys(data).length) return true;
-    return typeof data === "string" && !data.length;
-}
-
-
-/**
  * Return image size.
  *
  * @param {Object} manifest - image manifest
@@ -173,27 +130,7 @@ function setSummary() {
         const dd = document.createElement("dd");
         dd.className = "col-6 col-lg-10 fw-normal text-truncate text-end text-md-start py-1";
         dd.innerHTML = format ? format(data) : data;
-        dd.onclick = () => {
-            if (window.innerWidth <= 993) {
-                const active_menu = document.getElementById("offcanvasActionMenu");
-                const offcanvas = new bootstrap.Offcanvas(active_menu);
-                const offcanvas_header = active_menu.querySelectorAll(".offcanvas-header")[0];
-                const offcanvas_body = active_menu.querySelectorAll(".offcanvas-body")[0];
-
-                highlight(dd.innerText, offcanvas_body);
-
-                offcanvas_header.prepend(clipboard
-                    (dd.innerText, { className: "text-muted" })
-                );
-                const handler = () => {
-                    offcanvas_header.firstChild.remove();
-                    active_menu.removeEventListener("hidden.bs.offcanvas", handler);
-                };
-                active_menu.addEventListener("hidden.bs.offcanvas", handler);
-
-                offcanvas.show();
-            }
-        };
+        dd.onclick = () => offcanvasClipboard(dd.innerText);
         dl.appendChild(dd);
     });
 }
@@ -211,14 +148,7 @@ function setHistory() {
         const li = document.createElement("li");
         li.textContent = value.created_by;
         li.className = "list-group-item list-group-item-action text-monospace text-truncate small w-100 border-0";
-        li.onclick = () => {
-            if (window.innerWidth <= 993) {
-                const offcanvas = new bootstrap.Offcanvas("#offcanvasActionMenu");
-                const offcanvas_body = offcanvas._element.querySelectorAll(".offcanvas-body")[0];
-                highlight(li.innerText, offcanvas_body);
-                offcanvas.show();
-            }
-        };
+        li.onclick = () => offcanvasClipboard(li.innerText);
         ol.appendChild(li);
     });
 
@@ -367,42 +297,6 @@ function deleteImage(image) {
         height: 200,
         index_by: 0,
         limit: 50
-    }).view();
-}
-
-
-/**
- * Show JSON in modal window.
- *
- * @param {Object} json - data in JSON
- */
-function viewJSON(json) {
-    alert("<div id='info'></div>");
-
-    let data = [];
-    Object.keys(json).forEach(function (key) {
-        let val;
-        if (typeof json[key] === "object") {
-            val = JSON.stringify(json[key]);
-        } else {
-            val = json[key];
-        }
-        data.push([key, val]);
-    });
-
-    new Table({
-        element: document.getElementById("info"),
-        headers: [
-            { name: "key" },
-            {
-                name: "value",
-                format: (x) => clipboard(x, { input_class_name: "mw-100 bg-inherit" })
-            }
-        ],
-        data: data,
-        className: "table table-sm table-hover table-borderless",
-        theadClassName: "table table-sm",
-        height: 700
     }).view();
 }
 

@@ -14,11 +14,11 @@ let _core_;
             const light_icon = document.querySelector("link#light_icon");
             const dark_icon = document.querySelector("link#dark_icon");
             if (this.getTheme(false) === "dark") {
-                light_icon.remove();
+                if (light_icon) light_icon.remove();
                 document.head.append(dark_icon);
             } else {
+                if (dark_icon) dark_icon.remove();
                 document.head.append(light_icon);
-                dark_icon.remove();
             }
         }
 
@@ -90,6 +90,20 @@ window.onload = () => {
     // activate tooltips
     tooltip();
 };
+
+
+/**
+ * Check data for emptiness.
+ *
+ * @param {*} data
+ * @return {boolean} true if data is empty, else false
+ */
+function isEmpty(data) {
+    if (data === null || data === undefined) return true;
+    if (Array.isArray(data) && !data.length) return true;
+    if (typeof data === "object" && !Object.keys(data).length) return true;
+    return typeof data === "string" && !data.length;
+}
 
 
 /**
@@ -233,7 +247,7 @@ function createButton(options = {}) {
 /**
  * Show modal window error block.
  *
- * @param {string|HTMLElement} text - inner text ot HTML
+ * @param {string|HTMLElement} text - inner text or HTML
  */
 function modal_error(text) {
     let feedback = document.getElementById("modal_feedback");
@@ -243,10 +257,39 @@ function modal_error(text) {
 
 
 /**
+ * Highlight text.
+ *
+ * @param {*} text - text to highlight
+ * @param {HTMLElement} element - target DOM element
+ */
+function highlight(text, element) {
+    const formatJson = (text) => {
+        if (typeof text === "object") {
+            return JSON.stringify(text, null, 4);
+        }
+
+        try {
+            return JSON.stringify(JSON.parse(text), null, 4);
+        } catch (error) {
+            return text.replace(/"/g, "'");
+        }
+    };
+
+    const converter = new showdown.Converter({
+        tables: true,
+        tasklists: true,
+        simplifiedAutoLink: true,
+    });
+    element.innerHTML = converter.makeHtml("```json\n" + formatJson(text) + "\n```");
+    hljs.highlightElement(element.getElementsByTagName("code")[0]);
+}
+
+
+/**
  * Copy text to clipboard.
  *
  * @param {string} text - text
- * @param {HTMLElement} element - HTML element for a temporary block
+ * @param {HTMLElement} element - DOM element for a temporary block
  */
 function copyToClipboard(text, element) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -289,7 +332,7 @@ function clipboard(text, options = {}) {
     div.tabIndex = 1;
     div.appendChild(icon);
 
-    div.addEventListener("click", (e) => {
+    div.addEventListener("click", () => {
         copyToClipboard(text, div);
         const icon = div.firstChild;
         icon.classList.remove("fa-clipboard");
@@ -302,6 +345,36 @@ function clipboard(text, options = {}) {
     });
 
     return div;
+}
+
+
+/**
+ * Displays a Bootstrap Offcanvas modal with a copy-to-clipboard button.
+ * The Offcanvas is only triggered on screens narrower than `max_width` (default: 993px).
+ *
+ * @param {string} text - text to display
+ * @param {number} max_width - (optional) maximum window width (in px) to generate offcanvas
+ */
+function offcanvasClipboard(text, max_width = 993) {
+    if (window.innerWidth > max_width) return;
+
+    const active_menu = document.getElementById("offcanvasActionMenu");
+    const offcanvas = new bootstrap.Offcanvas(active_menu);
+    const offcanvas_header = active_menu.querySelectorAll(".offcanvas-header")[0];
+    const offcanvas_body = active_menu.querySelectorAll(".offcanvas-body")[0];
+
+    highlight(text, offcanvas_body);
+
+    offcanvas_header.prepend(
+        clipboard(text, { className: "text-muted" })
+    );
+    const handler = () => {
+        offcanvas_header.firstChild.remove();
+        active_menu.removeEventListener("hidden.bs.offcanvas", handler);
+    };
+    active_menu.addEventListener("hidden.bs.offcanvas", handler);
+
+    offcanvas.show();
 }
 
 

@@ -90,7 +90,7 @@ function viewRepositories(repositories) {
             },
             repository: {
                 width: "auto",
-                format: (repository, image) => {
+                format: (repository) => {
                     const a = document.createElement("a");
                     a.href = `/r/${repository}`;
                     a.className = "text-body text-nowrap";
