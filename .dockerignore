@@ -10,5 +10,6 @@
 **/docs
 **/docker-compose*
 **/Dockerfile*
+**/metrics.db
 **/config.*.cfg
 !config.example.cfg
