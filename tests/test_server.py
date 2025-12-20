@@ -61,7 +61,11 @@ def test_catalog(client):
 
     pattern = re.compile(r'const repositories = (.*);')
     script = get_script(pattern, response.text)
-    template = [{'name': 'docker.io/distribution', 'repository': 'docker.io'}]
+    template = [{
+        'application': 'distribution',
+        'name': 'docker.io/distribution',
+        'repository': 'docker.io'
+    }]
     assert script
     assert pattern.search(script.text).group(1) == dumps(template)
 
@@ -83,7 +87,11 @@ def test_repository(client):
 
     pattern = re.compile(r'const repositories = (.*);')
     script = get_script(pattern, response.text)
-    template = [{'name': 'docker.io/distribution', 'repository': 'docker.io'}]
+    template = [{
+        'application': 'distribution',
+        'name': 'docker.io/distribution',
+        'repository': 'docker.io'
+    }]
     assert script
     assert pattern.search(script.text).group(1) == dumps(template)
 
