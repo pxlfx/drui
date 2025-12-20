@@ -41,13 +41,13 @@ function viewRepositories(repositories) {
     new Table({
         element: repositories_dom,
         headers: {
-            name: {
-                format: (name, image) => {
-                    const match = name.match(/^(.*)\/(.*)$/);
+            application: {
+                format: (application, image) => {
+                    const name = image.name;
                     const a = document.createElement("a");
                     a.href = `/_/${image.name}`;
                     a.className = "text-decoration-none text-nowrap fw-bold";
-                    a.textContent = match ? match[2] : name;
+                    a.textContent = application;
 
                     const mark = imageMark(image.name);
                     const badge = markToBadge(mark, {
@@ -87,6 +87,9 @@ function viewRepositories(repositories) {
                     return div;
                 },
                 width: 400
+            },
+            name: {
+                display: false
             },
             repository: {
                 width: "auto",

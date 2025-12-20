@@ -70,6 +70,7 @@ def catalog(repo: t.Optional[str] = None) -> t.Union[Response, str]:
     for name in repositories:
         base_data = {
             'name': name,
+            'application': get_application(name),
             'repository': get_repository(name)
         }
 
@@ -82,6 +83,9 @@ def catalog(repo: t.Optional[str] = None) -> t.Union[Response, str]:
             })
 
         repos.append(base_data)
+
+    # sorting by application name
+    repos = sorted(repos, key=lambda x: x['application'])
 
     if to_json():
         return json_answer(repos)
@@ -260,6 +264,18 @@ def get_metrics():
     if to_json():
         return json_answer(data)
     return render_template('metrics.html', metrics=data)
+
+
+@app.template_global('get_application')
+def get_application(image: str) -> t.Optional[str]:
+    """
+    Return image application name.
+
+    :param image: image name
+    :return: application name
+    """
+    match_result = match(r'(^.*)/(.*)', image)
+    return match_result.group(2) if match_result else None
 
 
 @app.template_global('get_repository')
