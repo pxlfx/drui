@@ -271,6 +271,7 @@ class Database:
         items = self.search('''
                             WITH last_tags AS (SELECT image_id,
                                                       id AS tag_id,
+                                                      name AS tag,
                                                       created,
                                                       digest,
                                                       ROW_NUMBER() OVER (PARTITION BY image_id ORDER BY created DESC)
@@ -279,6 +280,7 @@ class Database:
                             SELECT i.name,
                                    COALESCE(tag_count.tags, 0) AS tags,
                                    COALESCE(SUM(l.size), 0)    AS size,
+                                   lt.tag                      AS latest,
                                    lt.created
                             FROM images i
                                      LEFT JOIN (SELECT image_id, COUNT(*) AS tags FROM tags GROUP BY image_id) tag_count
@@ -286,7 +288,7 @@ class Database:
                                      LEFT JOIN last_tags lt ON i.id = lt.image_id AND lt.rn = 1
                                      LEFT JOIN tag_layers tl ON lt.tag_id = tl.tag_id
                                      LEFT JOIN layers l ON tl.layer_id = l.id
-                            GROUP BY i.id, i.name, lt.created, lt.digest
+                            GROUP BY i.id, i.name, lt.created, lt.tag, lt.digest
                             ORDER BY i.name;
                             ''')
         return {item['name']: item for item in items}

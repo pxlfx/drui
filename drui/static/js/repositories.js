@@ -92,7 +92,7 @@ function viewRepositories(repositories) {
                 display: false
             },
             repository: {
-                width: "auto",
+                width: 200,
                 format: (repository) => {
                     const a = document.createElement("a");
                     a.href = `/r/${repository}`;
@@ -100,6 +100,10 @@ function viewRepositories(repositories) {
                     a.textContent = repository;
                     return a;
                 }
+            },
+            latest: {
+                display: repositories.length && "latest" in repositories[0],
+                width: 200
             },
             tags: {
                 display: repositories.length && "tags" in repositories[0],
@@ -114,7 +118,7 @@ function viewRepositories(repositories) {
                 display: repositories.length && "created" in repositories[0],
                 width: 200,
                 format: (timestamp) => lastModified(timestamp)
-            },
+            }
         },
         data: repositories,
         className: "table table-sm table-hover align-middle",

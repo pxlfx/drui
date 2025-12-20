@@ -79,7 +79,8 @@ def catalog(repo: t.Optional[str] = None) -> t.Union[Response, str]:
             base_data.update({
                 'size': image.get('size'),
                 'created': image.get('created'),
-                'tags': image.get('tags')
+                'tags': image.get('tags'),
+                'latest': image.get('latest')
             })
 
         repos.append(base_data)
