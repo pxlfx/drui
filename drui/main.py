@@ -3,7 +3,9 @@
 import argparse
 import atexit
 import sys
-from multiprocessing import Process, util
+from multiprocessing import set_start_method
+from multiprocessing import Process
+from multiprocessing import util
 from os import environ
 from os.path import abspath
 
@@ -14,6 +16,11 @@ from drui import __version__
 from drui import metrics
 from drui.app import init_app
 from drui.common.config import CONF
+
+
+# setting the 'fork' mode for multiprocessing in Python 3.14,
+# is necessary for proper handling of the configuration file
+set_start_method('fork', force=True)
 
 
 class WSGIApplication(BaseApplication):
