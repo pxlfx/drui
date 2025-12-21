@@ -17,7 +17,7 @@ def run(conf: ConfigParser) -> None:
     parent_pid = getppid()
 
     metrics = Metrics(conf)
-    interval = conf.getint('interval', section='metrics', default=60) / 60
+    interval = conf.getint('interval', section='metrics', default=60) * 60
     error_count = 0
 
     while True:
@@ -40,7 +40,7 @@ def run(conf: ConfigParser) -> None:
                     error_count += 1
                     if error_count >= 3:
                         exit(2)
-                    sleep(60)
+                sleep(60)
         except KeyboardInterrupt:
             exit(1)
 
