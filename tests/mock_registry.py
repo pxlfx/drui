@@ -15,6 +15,9 @@ from requests import request
 from requests.exceptions import ConnectionError
 
 
+set_start_method('fork', force=True)
+
+
 class RegistryServer:
     def __init__(self, port: int = 5432, auth: bool = False):
         """
@@ -37,16 +40,13 @@ class RegistryServer:
         self.app.add_url_rule('/v2/<path:image>/tags/list', view_func=self.tags)
         self.app.add_url_rule('/v2/<path:image>/manifests/<digest>', view_func=self.manifest)
         self.app.add_url_rule('/v2/<path:image>/blobs/<digest>', view_func=self.blob)
-        self.app.add_url_rule('/v2/<path:image>/manifests/<digest>',view_func=self.delete, methods=['DELETE'])
+        self.app.add_url_rule('/v2/<path:image>/manifests/<digest>', view_func=self.delete, methods=['DELETE'])
 
     def start(self):
         """
         Start server.
         """
-        set_start_method('fork', force=True)
-        self.process = Process(target=self.app.run,
-                               args=(self.host, self.port),
-                               daemon=True)
+        self.process = Process(target=self.app.run, args=(self.host, self.port))
         self.process.start()
 
         for _ in range(5):
@@ -78,7 +78,7 @@ class RegistryServer:
         resp.headers.update(headers if headers else {})
         resp.status_code = status_code
         return resp
-    
+
     def _read_json_file(self, path: str) -> flask.Response:
         """
         Read JSON file and return response.
@@ -176,4 +176,3 @@ class RegistryServer:
         if not exists(path):
             return self.response(status_code=404)
         return self.response(f'{image}:{digest} successfully deleted')
-    

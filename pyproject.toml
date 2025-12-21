@@ -64,7 +64,11 @@ addopts = [
     '--cache-clear',
     '--color=auto',
     '--cov=drui',
-    '--cov-report=term',
+    '--cov-report=term'
+]
+filterwarnings = [
+    'ignore:unclosed database in <sqlite3.Connection object at:ResourceWarning',
+    'ignore::DeprecationWarning'
 ]
 
 [tool.coverage.run]
