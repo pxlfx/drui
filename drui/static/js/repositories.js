@@ -86,13 +86,12 @@ function viewRepositories(repositories) {
                     div.appendChild(flex_div);
                     return div;
                 },
-                width: 400
             },
             name: {
+                system: true,
                 display: false
             },
             repository: {
-                width: 200,
                 format: (repository) => {
                     const a = document.createElement("a");
                     a.href = `/r/${repository}`;
@@ -102,21 +101,18 @@ function viewRepositories(repositories) {
                 }
             },
             latest: {
-                display: repositories.length && "latest" in repositories[0],
-                width: 200
+                display: repositories.length && "latest" in repositories[0]
             },
             tags: {
-                display: repositories.length && "tags" in repositories[0],
-                width: 200
+                width: 150,
+                display: false
             },
             size: {
                 display: repositories.length && "size" in repositories[0],
-                width: 200,
                 format: (size) => sizeFormat(size)
             },
             created: {
                 display: repositories.length && "created" in repositories[0],
-                width: 200,
                 format: (timestamp) => lastModified(timestamp)
             }
         },
@@ -127,6 +123,8 @@ function viewRepositories(repositories) {
         sort: true,
         limit: images_per_page,
         undefined_headers: true,
+        esp: true,
+        espClassName: images_per_page < repositories.length ? "" : "d-none d-md-block",
         redraw_bind: () => tooltip()
     }).view();
 }

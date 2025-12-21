@@ -930,9 +930,20 @@
     margin-bottom: 1rem;
 }
 
+.vanillajs-table-header th:first-child .filtering {
+    display: none;
+}
+
 .vanillajs-table-extra-settings-panel .vanillajs-table-group:first-child {
     display: none;
 }
+
+@media (min-width: 768px) {
+    .vanillajs-table-extra-settings-panel .vanillajs-table-group:first-child {
+        display: inline-block;
+    }
+}
+
 
 /* ------ */
 /* navbar */
