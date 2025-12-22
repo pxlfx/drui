@@ -16,6 +16,12 @@
 
 ---
 
+### Image inspect (dark theme)
+
+![Metrics (dark)](screenshots/screenshot-dark-4.png)
+
+---
+
 ### Image summary (light theme)
 
 ![image summary (light)](screenshots/screenshot-white-1.png)
