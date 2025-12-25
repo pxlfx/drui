@@ -1,7 +1,7 @@
-from datetime import datetime
 from os import getppid
 from os import kill
 from time import sleep
+from time import time
 
 from drui.common.config import ConfigParser
 from drui.metrics import Metrics
@@ -29,9 +29,9 @@ def run(conf: ConfigParser) -> None:
         try:
             stats = metrics.stats()
             if stats:
-                timestamp = datetime.fromisoformat(stats.get('timestamp'))
+                timestamp = float(stats.get('timestamp'))
                 status = stats.get('status')
-                seconds = (datetime.now() - timestamp).total_seconds()
+                seconds = time() - timestamp
                 diff = interval - seconds
 
                 if status == STATUSES.completed:

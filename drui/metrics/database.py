@@ -2,8 +2,8 @@
 
 import sqlite3
 import typing as t
-from datetime import datetime
 from os import remove
+from time import time
 
 from drui.metrics import Tag
 
@@ -119,7 +119,7 @@ class Database:
                          INSERT OR REPLACE INTO [stats] (id, timestamp, status, message)
                          VALUES (1, ?, ?, ?)
                          ''', (
-                datetime.now().isoformat(),
+                time(),
                 status,
                 error
             ))
@@ -270,12 +270,12 @@ class Database:
     def raw(self):
         items = self.search('''
                             WITH last_tags AS (SELECT image_id,
-                                                      id AS tag_id,
+                                                      id   AS tag_id,
                                                       name AS tag,
                                                       created,
                                                       digest,
                                                       ROW_NUMBER() OVER (PARTITION BY image_id ORDER BY created DESC)
-                                                         AS rn
+                                                           AS rn
                                                FROM tags)
                             SELECT i.name,
                                    COALESCE(tag_count.tags, 0) AS tags,

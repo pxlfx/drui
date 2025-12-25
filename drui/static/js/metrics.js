@@ -9,7 +9,7 @@ $(function () {
 
         switch (key) {
             case "stats.timestamp":
-                value = new Date(value).format("%Y/%M/%D %h:%m");
+                value = new Date(value * 1000).format("%Y/%M/%D %h:%m");
                 break;
 
             case "stats.status":
