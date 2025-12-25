@@ -43,15 +43,15 @@ function viewRepositories(repositories) {
         headers: {
             application: {
                 format: (application, image) => {
-                    const name = image.name;
                     const a = document.createElement("a");
                     a.href = `/_/${image.name}`;
-                    a.className = "text-decoration-none text-nowrap fw-bold";
+                    a.className = "text-decoration-none text-truncate fw-bold d-inline-flex";
                     a.textContent = application;
+                    a.style.maxWidth = "75vw";
 
                     const mark = imageMark(image.name);
                     const badge = markToBadge(mark, {
-                        tooltip: { "data-bs-placement": "right" },
+                        tooltip: {"data-bs-placement": "right"},
                         text: "",
                     });
 
@@ -63,8 +63,9 @@ function viewRepositories(repositories) {
                     flex_div.className = "row small text-nowrap text-muted";
 
                     const repo_div = document.createElement("div");
-                    repo_div.className = "col-5 col-md-12 pe-none text-truncate pe-0";
+                    repo_div.className = "col-5 col-md-12 pe-0 text-truncate pe-0 pe-md-4";
                     repo_div.textContent = image.name;
+                    repo_div.style.maxWidth = "75vw";
                     flex_div.appendChild(repo_div);
 
                     if (image.size) {
@@ -86,6 +87,8 @@ function viewRepositories(repositories) {
                     div.appendChild(flex_div);
                     return div;
                 },
+                system: true,
+                width: 400
             },
             name: {
                 system: true,
@@ -104,7 +107,7 @@ function viewRepositories(repositories) {
                 display: repositories.length && "latest" in repositories[0]
             },
             tags: {
-                width: 150,
+                width: 100,
                 display: false
             },
             size: {
