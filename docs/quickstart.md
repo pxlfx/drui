@@ -65,7 +65,7 @@ version: '3.4'
 
 services:
   drui:
-    image: ghcr.io/pxlfx/drui:0.1.0
+    image: ghcr.io/pxlfx/drui:0.2.0
     container_name: drui
     restart: always
     environment:

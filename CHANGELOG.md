@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 This project adheres to [Semantic Versioning].
 
+## [0.2.0] - 2025-12-25
+
+### Added
+
+- added download Docker image as tar file (#1)
+- added metrics collection system (#2)
+- added token authentication support (#3)
+- added copying tag details to clipboard on mobile devices
+- added Python-3.14 support
+
+### Changed
+
+- updated JavaScript libraries (fontawesome, bootstrap, table.js)
+
+### Fixed
+
+- fixed image page rendering error when repository list is empty
+- fixed implement for registry catalog to bypass 100 items limit
 
 ## [0.1.0] - 2025-08-01
 
@@ -35,4 +53,5 @@ This project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
+[0.2.0]: https://github.com/pxlfx/drui/releases/tag/0.2.0
 [0.1.0]: https://github.com/pxlfx/drui/releases/tag/0.1.0
