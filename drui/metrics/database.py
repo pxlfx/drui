@@ -12,15 +12,16 @@ class Database:
     """
     Handles storage and retrieval of container registry metadata.
     """
-
-    def __init__(self, conf):
+    def __init__(self, conf, worker: bool = False):
+        # TODO: need worker flag for windows ???
         self.conf = conf
         self.path: str = './metrics.db'
         self._init_db()
 
         # remove the database file if the registry URL has changed
+        # TODO: on Windows can`t get remove database`
         endpoint = self.conf.get('endpoint', section='registry')
-        if self.get_registry() != endpoint:
+        if self.get_registry() != endpoint and worker:
             remove(self.path)
             self._init_db()
             self.set_registry(endpoint)
@@ -113,7 +114,7 @@ class Database:
                              ''')
         return result[0]['endpoint'] if result else None
 
-    def update_stats(self, status: str = None, error: str = None) -> None:
+    def update_stats(self, status: t.Optional[str] = None, error: t.Optional[str] = None) -> None:
         with sqlite3.connect(self.path) as conn:
             conn.execute('''
                          INSERT OR REPLACE INTO [stats] (id, timestamp, status, message)
@@ -219,7 +220,7 @@ class Database:
                              ORDER BY timestamp DESC
                              LIMIT 1
                              ''')
-        return result[0] if result else []
+        return result[0] if result else {}
 
     def size(self) -> str:
         return self.search('SELECT SUM(size) AS size FROM [layers]')[0]['size']

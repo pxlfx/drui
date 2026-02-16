@@ -4,18 +4,19 @@ import typing as t
 
 from flask import jsonify
 from flask import request
-from requests.models import Response
+from requests import models
+from werkzeug import Response
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
 
 
-def check_status(resp: t.Optional[Response]) -> None:
+def check_status(resp: models.Response) -> None:
     """
     Check response status code and raise exception at error.
     """
     if resp.status_code in default_exceptions:
         ex = default_exceptions[resp.status_code]
-        raise ex(response=resp, description=resp.reason)
+        raise ex(response=Response(resp), description=resp.reason)
     resp.raise_for_status()
 
 
@@ -28,7 +29,7 @@ def json_answer(message: t.Any, status_code: int = 200) -> Response:
     :return: response in JSON
     """
     if isinstance(message, HTTPException):
-        status_code = message.code
+        status_code = message.code or 505
         message = message.description
 
     response = jsonify(message)

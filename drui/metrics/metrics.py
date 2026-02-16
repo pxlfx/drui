@@ -58,7 +58,7 @@ class Metrics:
             self.log.error(f'Metrics worker stopped with error: {error}')
             self.db.update_stats(status=STATUSES.error, error=str(error))
 
-    def _process_tag(self, image: str, tag: str) -> t.Optional[Tag]:
+    def _process_tag(self, image: str, tag: str) -> Tag:
         """
         Process a single tag.
         """
@@ -80,7 +80,7 @@ class Metrics:
             self.log.error(f"Error processing image {image}: {error}")
             raise ProcessingImageError(f'{image}:{tag}')
 
-    def _catalog(self) -> t.Optional[t.List[str]]:
+    def _catalog(self) -> t.List[str]:
         """
         Get list of repositories from registry.
         """

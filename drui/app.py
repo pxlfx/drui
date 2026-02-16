@@ -50,7 +50,7 @@ def get_registry() -> Registry:
 
 @app.route('/')
 @app.route('/r/<path:repo>')
-def catalog(repo: t.Optional[str] = None) -> t.Union[Response, str]:
+def catalog(repo: t.Optional[str] = None) -> t.Union[Response, t.Tuple[str, int]]:
     """
     Return image list.
 
@@ -92,11 +92,11 @@ def catalog(repo: t.Optional[str] = None) -> t.Union[Response, str]:
         return json_answer(repos)
     return flask.render_template('repositories.html',
                                  repositories=repos,
-                                 repository=repo)
+                                 repository=repo), 200
 
 
 @app.route('/_/<path:image>')
-def image_ref(image: str) -> t.Union[Response, str]:
+def image_ref(image: str) -> t.Union[Response, t.Tuple[str, int]]:
     """
     Refer to image tag page.
 
@@ -105,14 +105,14 @@ def image_ref(image: str) -> t.Union[Response, str]:
     registry = get_registry()
     tags = registry.tags(image)
     if not tags:
-        return flask.render_template('empty.html', image=image)
+        return flask.render_template('empty.html', image=image), 200
 
     tag = 'latest' if (not tags or 'latest' in tags) else tags[-1]
     return flask.redirect(f'/_/{image}/tags/{tag}')
 
 
 @app.route('/_/<path:image>/tags/<tag>')
-def image_tag(image: str, tag: str) -> t.Union[Response, str]:
+def image_tag(image: str, tag: str) -> t.Union[Response, t.Tuple[str, int]]:
     """
     Return information about image tag.
 
@@ -127,7 +127,7 @@ def image_tag(image: str, tag: str) -> t.Union[Response, str]:
     # get image manifest
     manifest = registry.manifest(image, tag, digest=digest)
     if not manifest:
-        return flask.render_template('empty.html', image=image)
+        return flask.render_template('empty.html', image=image), 200
 
     # get image tags
     tags = registry.tags(image)
@@ -138,7 +138,7 @@ def image_tag(image: str, tag: str) -> t.Union[Response, str]:
                                  image=image,
                                  tags=tags,
                                  tag=tag,
-                                 manifest=manifest)
+                                 manifest=manifest), 200
 
 
 @app.route('/_/<path:image>/tags/<tag>', methods=['DELETE'])
@@ -186,7 +186,7 @@ def error_page(error: HTTPException) -> t.Union[Response, t.Tuple[str, int]]:
 
     :param error: python exception
     """
-    if not hasattr(error, 'code'):
+    if not hasattr(error, 'code') or not error.code:
         error.code = 500
         error.description = """We're sorry, but something went wrong.
         We've been notified about this issue and we'll take
@@ -218,7 +218,7 @@ def login() -> t.Union[Response, t.Tuple[str, int]]:
 
 
 @app.route('/logout')
-def logout() -> flask.Response:
+def logout() -> Response:
     """
     Close user session.
     """
@@ -246,7 +246,7 @@ def get_broadcast() -> t.Union[Response, str]:
 
 
 @app.route('/metrics')
-def get_metrics():
+def get_metrics() -> t.Union[Response, t.Tuple[str, int]]:
     """
     Registry metrics page.
     """
@@ -264,19 +264,7 @@ def get_metrics():
 
     if to_json():
         return json_answer(data)
-    return render_template('metrics.html', metrics=data)
-
-
-@app.template_global('get_application')
-def get_application(image: str) -> t.Optional[str]:
-    """
-    Return image application name.
-
-    :param image: image name
-    :return: application name
-    """
-    match_result = match(r'(^.*)/(.*)', image)
-    return match_result.group(2) if match_result else None
+    return render_template('metrics.html', metrics=data), 200
 
 
 @app.template_global('get_repository')

@@ -92,7 +92,7 @@ class Registry:
         """
         self.endpoint = endpoint
         self.auth = auth
-        if not self.auth and username:
+        if not self.auth and username and password:
             self.auth = _basic_auth_str(username, password)
 
     def make_request(self, **kwargs) -> PreparedRequest:
@@ -117,7 +117,7 @@ class Registry:
         req = requests.Request(**kwargs)
         return req.prepare()
 
-    def request(self, method: str, uri: str, bearer_cache: bool = True, **kwargs: t.Any) -> t.Optional[Response]:
+    def request(self, method: str, uri: str, bearer_cache: bool = True, **kwargs: t.Any) -> Response:
         """
         Send HTTP request and return result.
 
@@ -143,7 +143,7 @@ class Registry:
                 if provider not in self.AUTH_PROVIDERS:
                     raise Unauthorized(f'Auth provider "{provider}" not supported.')
 
-                if provider == 'bearer':
+                if provider == 'bearer' and self.auth:
                     bearer = Bearer(auth=self.auth)
                     token = bearer.token(resp, cache=bearer_cache)
                     kwargs.setdefault('headers', {})
@@ -172,7 +172,7 @@ class Registry:
 
         return repository_list
 
-    def manifest(self, image: str, tag: str, digest: t.Optional[str] = None) -> t.Optional[t.Dict]:
+    def manifest(self, image: str, tag: str, digest: t.Optional[str] = None) -> t.Dict:
         """
         Return image tag manifest.
 
@@ -206,7 +206,7 @@ class Registry:
         # add image configuration to manifest
         if 'config' not in manifest:
             log.warning(f'Unknown manifest: {manifest}')
-            return None
+            return {}
 
         config_digest = manifest['config'].get('digest')
         resp = self.request('GET', f'/v2/{image}/blobs/{config_digest}', headers=self.ACCEPT_HEADERS)
@@ -216,7 +216,7 @@ class Registry:
         manifest['id'] = resp.headers.get('Docker-Content-Digest', default=config_digest)
         return manifest
 
-    def tags(self, image: str) -> t.Optional[t.List[str]]:
+    def tags(self, image: str) -> t.List[str]:
         """
         Return image tag list.
 
@@ -227,7 +227,7 @@ class Registry:
             resp = self.request('GET', f'/v2/{image}/tags/list')
             return sorted(resp.json().get('tags', []), key=semver_comparison)
         except (NotFound, TypeError):
-            return None
+            return []
 
     def delete(self, image: str, tag: str) -> bool:
         """
@@ -279,13 +279,18 @@ class Registry:
         stream = TarStream()
 
         manifest = self.manifest(image, tag)
+        if not manifest:
+            raise NotFound(f'Manifest for "{image}:{tag}" not found.')
+
         schema_version = manifest.get('schemaVersion')
         if schema_version != 2:
-            raise NotImplemented(f'Manifest schemaVersion "{schema_version}'
-                                 ' not supported.')
+            raise NotImplemented(f'Manifest schemaVersion "{schema_version} not supported.')
 
         # add image configuration
         config_digest = manifest.get('id')
+        if not config_digest:
+            raise NotFound(f'Config digest for "{image}:{tag}" not found.')
+
         config_id = config_digest.split(':')[1]
         stream.add(
             self.blob(image, config_digest),

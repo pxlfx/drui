@@ -1,11 +1,11 @@
 import typing as t
 
-from flask import Response
 from flask import current_app
 from flask import render_template
 from flask import request
 from flask import session
 from requests.exceptions import ConnectionError
+from werkzeug import Response
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import MethodNotAllowed
@@ -33,12 +33,14 @@ def _prepare_error(error: Exception) -> t.Union[Response, t.Tuple[str, int]]:
     elif not isinstance(error, HTTPException):
         error = InternalServerError()
 
+    code = error.code or 500
+
     if to_json():
-        return json_answer(error)
-    return render_template('core.html', error=error), error.code
+        return json_answer(error, status_code=code)
+    return render_template('core.html', error=error), code
 
 
-def _get_view_func(url: t.Union[Rule, str], method: str = 'GET') -> t.Optional[t.Tuple]:
+def _get_view_func(url: str, method: str = 'GET') -> t.Optional[t.Callable]:
     """
     Return the function to call for the specified URL and method.
 
@@ -49,26 +51,28 @@ def _get_view_func(url: t.Union[Rule, str], method: str = 'GET') -> t.Optional[t
     adapter = current_app.url_map.bind('localhost')
 
     try:
-        match = adapter.match(url.rule, method=method)
+        match = adapter.match(url, method=method)
     except RequestRedirect as e:
         return _get_view_func(e.new_url, method)
     except (MethodNotAllowed, NotFound):
         return None
 
     try:
-        return current_app.view_functions[match[0]], match[1]
+        return current_app.view_functions[match[0]]
     except KeyError:
         return None
 
 
-def middleware() -> t.Union[Response, t.Tuple[str, int], None]:
+def middleware() -> t.Union[Response,  t.Tuple[str, int], None]:
     """
     Intercept a request processing error and display it in HTML or JSON.
     """
     if request.path.startswith('/static/') or not request.url_rule:
         return None
 
-    func, params = _get_view_func(request.url_rule, request.method)
+    func = _get_view_func(request.url_rule.rule, request.method)
+    if not func:
+        return _prepare_error(NotFound())
     kwargs = request.view_args or {}
 
     try:

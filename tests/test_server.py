@@ -63,11 +63,17 @@ def test_catalog(client):
     script = get_script(pattern, response.text)
     template = [{
         'application': 'distribution',
+        'created': None,
+        'latest': None,
         'name': 'docker.io/distribution',
-        'repository': 'docker.io'
+        'repository': 'docker.io',
+        'size': None,
+        'tags': None
     }]
     assert script
-    assert pattern.search(script.text).group(1) == dumps(template)
+    _match = pattern.search(script.text)
+    assert _match is not None, 'Pattern not found in script'
+    assert _match.group(1) == dumps(template)
 
 
 def test_catalog_json(client):
@@ -89,11 +95,17 @@ def test_repository(client):
     script = get_script(pattern, response.text)
     template = [{
         'application': 'distribution',
+        'created': None,
+        'latest': None,
         'name': 'docker.io/distribution',
-        'repository': 'docker.io'
+        'repository': 'docker.io',
+        'size': None,
+        'tags': None
     }]
     assert script
-    assert pattern.search(script.text).group(1) == dumps(template)
+    _match = pattern.search(script.text)
+    assert _match is not None, 'Pattern not found in script'
+    assert _match.group(1) == dumps(template)
 
 
 def test_repository_json(client):
@@ -114,7 +126,9 @@ def test_image(client):
     pattern = re.compile(r'const image = (.*);')
     script = get_script(pattern, response.text)
     assert script
-    assert pattern.search(script.text).group(1) == '"docker.io/distribution"'
+    _match = pattern.search(script.text)
+    assert _match is not None, 'Pattern not found in script'
+    assert _match.group(1) == dumps("docker.io/distribution")
 
 
 def test_image_json(client):
@@ -142,9 +156,11 @@ def test_missing_image(client):
     assert_response(response)
 
     soup = BeautifulSoup(response.text, 'html.parser')
-    info = soup.find('div', class_='alert alert-info').find('b')
-    assert info
-    assert info.text == 'Repository is empty.'
+    info = soup.find('div', class_='alert alert-info')
+    assert info, 'div.alert-info not found in page'
+    bold = info.find('b')
+    assert bold
+    assert bold.text == 'Repository is empty.'
 
 
 @pytest.mark.parametrize('uri', [

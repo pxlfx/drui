@@ -49,7 +49,7 @@ class ConfigParser:
     def __init__(self, **kwargs: t.Any) -> None:
         self._config = _ConfigParser(**kwargs)
 
-    def read(self, config_file: t.Union[PathLike]) -> t.List[str]:
+    def read(self, config_file: t.Union[PathLike, str]) -> t.List[str]:
         return self._config.read(config_file, encoding='utf-8')
 
     def add_section(self, section: str) -> None:

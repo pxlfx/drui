@@ -24,13 +24,13 @@ class RegistryServer:
         :param port: port for listening
         :param auth: enable authentication
         """
-        self.process = None
         self.protocol = 'http'
         self.host = 'localhost'
         self.port = port
         self.endpoint = f'{self.protocol}://{self.host}:{self.port}'
         self.auth = auth
         self.app = flask.Flask(__name__)
+        self.process = Process(target=self.app.run, args=(self.host, self.port))
 
         # API rules
         self.app.before_request(self.check_auth)
@@ -46,7 +46,6 @@ class RegistryServer:
         """
         Start server.
         """
-        self.process = Process(target=self.app.run, args=(self.host, self.port))
         self.process.start()
 
         for _ in range(5):
@@ -135,8 +134,8 @@ class RegistryServer:
         m_v1 = 'application/vnd.oci.image.manifest.v1+json'
         m_v2 = 'application/vnd.docker.distribution.manifest.v2+json'
 
-        path = None
-        accept = flask.request.headers.get('Accept')
+        path = ''
+        accept = str(flask.request.headers.get('Accept'))
         if (m_index in accept and m_list in accept) or m_v1 in accept:
             path = f'tests/data/repositories/{image}/{digest}/v1.json'
         if m_v2 in accept:

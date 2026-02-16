@@ -29,7 +29,7 @@ def run(conf: ConfigParser) -> None:
         try:
             stats = metrics.stats()
             if stats:
-                timestamp = float(stats.get('timestamp'))
+                timestamp = float(stats.get('timestamp', 0))
                 status = stats.get('status')
                 seconds = time() - timestamp
                 diff = interval - seconds
