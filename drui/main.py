@@ -10,7 +10,7 @@ from os import environ
 from os.path import abspath
 
 from flask import Flask
-from gunicorn.app.base import BaseApplication
+from waitress import serve
 
 from drui import __version__
 from drui import metrics
@@ -20,29 +20,35 @@ from drui.common.config import CONF
 
 # setting the 'fork' mode for multiprocessing in Python 3.14,
 # is necessary for proper handling of the configuration file
-set_start_method('fork', force=True)
+try:
+    set_start_method('fork', force=True)
+except ValueError:
+    pass
 
 
-class WSGIApplication(BaseApplication):
+class WSGIApplication:
     """
-    Custom class for Gunicorn application.
+    Custom class for Waitress application.
     """
 
-    def __init__(self, app, host='0.0.0.0', port=8000):
-        self.options = {
-            'bind': f'{host}:{port}',
-            'workers': 1,
-            'loglevel': 'warning'
-        }
-        self.application = app
-        super().__init__()
+    def __init__(self, app, host='0.0.0.0', port=8000, threads=8):
+        self.app = app
+        self.host = host
+        self.port = port
+        self.threads = threads
 
-    def load_config(self):
-        for key, value in self.options.items():
-            self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
+    def run(self):
+        """Запускает сервер Waitress с настройками"""
+        serve(
+            self.app,
+            host=self.host,
+            port=self.port,
+            threads=self.threads,
+            connection_limit=1000,
+            channel_timeout=30,
+            asyncore_loop_timeout=1,
+            _quiet=True
+        )
 
 
 def parse_arguments() -> argparse.Namespace:

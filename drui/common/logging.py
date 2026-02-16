@@ -4,6 +4,7 @@ import logging
 import sys
 import typing as t
 
+from flask import cli
 from flask import Flask
 from flask import has_request_context
 from flask import request
@@ -67,9 +68,7 @@ def disable_wsgi_logging(app: Flask) -> None:
     logging.getLogger('urllib3.connectionpool').disabled = True
 
     # disable the initial message from Flask
-    cli = sys.modules.get('flask.cli')
-    if cli:
-        cli.show_server_banner = lambda *x: None
+    cli.show_server_banner = lambda *x: None
 
 
 def get_logger(name: t.Optional[str] = None) -> logging.Logger:
