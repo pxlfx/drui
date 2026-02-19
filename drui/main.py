@@ -125,7 +125,7 @@ def run_application(server: Flask, host: str, port: int, dev_mode: bool) -> None
     """
     try:
         if dev_mode:
-            server.run(host=host, port=port, debug=True, threaded=True)
+            server.run(host=host, port=port, debug=dev_mode, threaded=True)
         else:
             WSGIApplication(server, host=host, port=port).run()
     except Exception as error:

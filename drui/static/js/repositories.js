@@ -156,7 +156,10 @@ function viewBroadcast() {
                 simplifiedAutoLink: true
             });
 
-            broadcast.innerHTML = converter.makeHtml(raw);
+            const sanitizedBroadcast = converter.makeHtml(raw);
+            const tempBroadcastDiv = document.createElement('div');
+            tempBroadcastDiv.innerHTML = sanitizedBroadcast;
+            broadcast.appendChild(tempDiv);
             broadcastTitle.innerText = broadcast.innerText.split("\n")[0];
             hljs.highlightAll();
         }

@@ -251,7 +251,7 @@ function createButton(options = {}) {
  */
 function modal_error(text) {
     let feedback = document.getElementById("modal_feedback");
-    feedback.children[0].innerHTML = text;
+    feedback.children[0].innerText = text;
     feedback.classList.remove("visually-hidden");
 }
 
@@ -280,7 +280,10 @@ function highlight(text, element) {
         tasklists: true,
         simplifiedAutoLink: true,
     });
-    element.innerHTML = converter.makeHtml("```json\n" + formatJson(text) + "\n```");
+    const sanitizedJson = converter.makeHtml("```json\n" + formatJson(text) + "\n```");
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = sanitizedJson;
+    element.appendChild(tempDiv);
     hljs.highlightElement(element.getElementsByTagName("code")[0]);
 }
 

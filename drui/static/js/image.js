@@ -129,7 +129,7 @@ function setSummary() {
 
         const dd = document.createElement("dd");
         dd.className = "col-6 col-lg-10 fw-normal text-truncate text-end text-md-start py-1";
-        dd.innerHTML = format ? format(data) : data;
+        dd.innerText = format ? format(data) : data;
         dd.onclick = () => offcanvasClipboard(dd.innerText);
         dl.appendChild(dd);
     });

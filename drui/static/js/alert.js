@@ -12,7 +12,7 @@
  *  setOptions {Object} - alert:parameters
  *    - bind {Function} - callback function when "accept" button is pressed
  *    - cancel {Function} - callback function when "cancel" button is pressed
- *    - accept_text {String} - inner text or HTML
+ *    - accept_text {String} - inner text
  *    - accept_hide {Boolean} - hide "accept" button (default: false)
  *    - closeModal {Function} - close modal window callback function
  */
@@ -27,7 +27,7 @@ class Alert {
         closeModal();
 
         const modalBody = document.getElementById("modal_body");
-        modalBody.innerHTML = this.options.text instanceof Node ? "" : this.options.text;
+        modalBody.innerText = this.options.text instanceof Node ? "" : this.options.text;
         if (this.options.text instanceof Node) {
             modalBody.appendChild(this.options.text);
         }
@@ -37,7 +37,7 @@ class Alert {
 
         // change "accept" button text and visibility
         const acceptButton = document.getElementById("modal_save");
-        acceptButton.innerHTML = this.options.accept_text || "Save changes";
+        acceptButton.innerText = this.options.accept_text || "Save changes";
         acceptButton.hidden = !!this.options.accept_hide;
 
         // show modal window
@@ -138,7 +138,7 @@ function closeModal() {
 window.alert = function (text) {
     const div = document.createElement("div");
     div.className = "text-break";
-    div.innerHTML = text;
+    div.innerText = text;
 
     return alertBox.setOptions({
         text: div,
