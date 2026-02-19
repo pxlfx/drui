@@ -18,9 +18,13 @@ class Metrics:
     Client for collecting registry metrics.
     """
 
-    def __init__(self, conf: ConfigParser) -> None:
+    def __init__(self, conf: ConfigParser, recreate_on_mismatch: bool = False) -> None:
+        """
+        :param conf: instance of configuration file
+        :param recreate_on_mismatch: remove the database file if the registry URL has changed
+        """
         self.conf = conf
-        self.db = Database(self.conf)
+        self.db = Database(self.conf, recreate_on_mismatch)
         self.log = get_logger(__name__)
 
         endpoint = self.conf.get('endpoint', section='registry')

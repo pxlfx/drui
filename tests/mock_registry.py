@@ -15,7 +15,10 @@ from requests import request
 from requests.exceptions import ConnectionError
 
 
-set_start_method('fork', force=True)
+try:
+    set_start_method('fork', force=True)
+except ValueError:
+    pass
 
 
 class RegistryServer:
@@ -145,6 +148,9 @@ class RegistryServer:
             return self.response(status_code=404)
 
         data = self._read_json_file(path).json
+        if not data:
+            raise FileExistsError(path)
+        
         digest = data.get('config', {}).get('digest')
         return self.response(data, headers={'Docker-Content-Digest': digest})
 

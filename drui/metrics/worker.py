@@ -4,6 +4,7 @@ from time import sleep
 from time import time
 
 from drui.common.config import ConfigParser
+from drui.common.process import pid_exists
 from drui.metrics import Metrics
 from drui.metrics import STATUSES
 
@@ -16,14 +17,12 @@ def run(conf: ConfigParser) -> None:
     """
     parent_pid = getppid()
 
-    metrics = Metrics(conf)
+    metrics = Metrics(conf, recreate_on_mismatch=True)
     interval = conf.getint('interval', section='metrics', default=60) * 60
     error_count = 0
 
     while True:
-        try:
-            kill(parent_pid, 0)
-        except OSError:
+        if not pid_exists(parent_pid):
             exit(0)
 
         try:

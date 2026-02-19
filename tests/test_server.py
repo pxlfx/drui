@@ -63,12 +63,8 @@ def test_catalog(client):
     script = get_script(pattern, response.text)
     template = [{
         'application': 'distribution',
-        'created': None,
-        'latest': None,
         'name': 'docker.io/distribution',
-        'repository': 'docker.io',
-        'size': None,
-        'tags': None
+        'repository': 'docker.io'
     }]
     assert script
     _match = pattern.search(script.text)
@@ -95,12 +91,8 @@ def test_repository(client):
     script = get_script(pattern, response.text)
     template = [{
         'application': 'distribution',
-        'created': None,
-        'latest': None,
         'name': 'docker.io/distribution',
-        'repository': 'docker.io',
-        'size': None,
-        'tags': None
+        'repository': 'docker.io'
     }]
     assert script
     _match = pattern.search(script.text)

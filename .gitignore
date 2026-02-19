@@ -3,3 +3,4 @@
 .coverage
 config.test.cfg
 __pycache__
+metrics.db
