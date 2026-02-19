@@ -58,10 +58,13 @@ services:
     image: ghcr.io/pxlfx/drui:0.2.0
     container_name: drui
     restart: always
+    read_only: true
     environment:
       DRUI_REGISTRY_ENDPOINT: http://distribution:5000
     ports:
       - 8000:8000
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - distribution
 
@@ -69,10 +72,13 @@ services:
     image: distribution/distribution:3.0.0
     container_name: distribution
     restart: always
+    read_only: true
     ports:
       - 5000:5000
     volumes:
       - data:/var/lib/registry
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   data:

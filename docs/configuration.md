@@ -168,6 +168,14 @@ You can configure DRUI using a configuration file or environment variables. Belo
 - **Default**: `60` (every hour)
 - **Environment Variable**: `DRUI_METRICS_INTERVAL`
 
+### `path`
+
+- **Description**: metrics database path
+- **Type**: `str`
+- **Example**: `/var/data/metrics.db`
+- **Default**: `/tmp/metrics.db`
+- **Environment Variable**: `DRUI_METRICS_PATH`
+
 ### `username`
 
 - **Description**: username for metric worker

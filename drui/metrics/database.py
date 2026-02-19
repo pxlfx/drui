@@ -22,7 +22,7 @@ class Database:
         :param recreate_on_mismatch: remove the database file if the registry URL has changed
         """
         self.conf = conf
-        self.path: str = './metrics.db'
+        self.path: str = self.conf.get('path', section='metrics', default='/tmp/metrics.db')
         self._init_db()
 
         endpoint = self.conf.get('endpoint', section='registry')
