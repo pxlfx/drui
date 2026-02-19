@@ -51,7 +51,7 @@ $(function () {
 
                         const dt = document.createElement("dt");
                         dt.className = "col-8 text-nowrap text-truncate pb-1 fw-normal";
-                        dt.innerHTML = `<a href="/_/${encodeURIComponent(repo)}/tags/${encodeURIComponent(tag)}">${item.image}</a>`;
+                        dt.innerHTML = `<a href="/_/${repo}/tags/${tag}">${item.image}</a>`;
                         dl.appendChild(dt);
 
                         const dd = document.createElement("dd");
@@ -138,7 +138,7 @@ function getList(images) {
     images.forEach((image) => {
         const [repo, tag] = image.split(":");
         const li = document.createElement("li");
-        li.innerHTML = `<a href="/_/${encodeURIComponent(repo)}/tags/${encodeURIComponent(tag)}">${image}</a>`;
+        li.innerHTML = `<a href="/_/${repo}/tags/${tag}">${image}</a>`;
         li.className = "list-group-item text-truncate w-100 border-0 py-1";
         ol.appendChild(li);
     });

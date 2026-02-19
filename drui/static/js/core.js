@@ -280,10 +280,7 @@ function highlight(text, element) {
         tasklists: true,
         simplifiedAutoLink: true,
     });
-    const sanitizedJson = converter.makeHtml("```json\n" + formatJson(text) + "\n```");
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = sanitizedJson;
-    element.appendChild(tempDiv);
+    element.innerHTML = converter.makeHtml("```json\n" + formatJson(text) + "\n```");
     hljs.highlightElement(element.getElementsByTagName("code")[0]);
 }
 
