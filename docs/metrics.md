@@ -22,8 +22,7 @@ To enable metrics collection set the configuration parameter:
 enable = true
 ```
 
-> Full information about the configuration parameters see in
-[docs/configuration](docs/configuration.md)
+> Full information about the configuration parameters see in [docs/configuration](docs/configuration.md)
 
 An example command to run DRUI with metrics collection using Docker:
 
@@ -42,10 +41,3 @@ docker run --detach \
 Once metrics are enabled, DRUI exposes metrics at the `/metrics` endpoint.
 
 **Example**: `http://127.0.0.1:8000/metrics`
-  
-## Next Steps
-
-- Explore the [configuration](configuration.md) section to customize DRUI
-  further.
-- Visit the [GitHub repository](https://github.com/pxlfx/drui) for more
-  information, issues, and contributions.

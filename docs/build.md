@@ -1,7 +1,6 @@
 # Build
 
-This section will walk you through the steps to build and install **DRUI** from
-source code.
+This section will walk you through the steps to build and install **DRUI** from source code.
 
 ---
 
@@ -12,9 +11,7 @@ source code.
    cd drui
    ```
 
-   > [!NOTE]
-   > This will download the source code and navigate you into the project
-   > directory.
+   > This will download the source code and navigate you into the project directory.
 
 2. Create a Virtual Environment (to isolate the project dependencies):
 
@@ -35,30 +32,18 @@ source code.
    drui --version
    ```
 
-   > [!NOTE]
-   > This command should output the current version of DRUI, confirming that
-   > the installation was successful.
+   > This command should output the current version of DRUI, confirming that the installation was successful.
 
 ## Additional Tips
 
-- **Development Mode**: after install, you can run DRUI in "development" mode
-  (an interactive debugger will be shown for unhandled exceptions, and the
-  server will be reloaded when code changes):
+- **Development Mode**: after install, you can run DRUI in "development" mode (an interactive debugger will be shown for unhandled exceptions, and the server will be reloaded when code changes):
 
   ```bash
   drui --dev --config "/path/to/config.cfg"
   ```
 
-- **Deactivating the Virtual Environment**: when you're done working, you can
-  deactivate the virtual environment by simply running:
+- **Deactivating the Virtual Environment**: when you're done working, you can deactivate the virtual environment by simply running:
 
   ```bash
   deactivate
   ```
-
-## Next Steps
-
-- Explore the [configuration](configuration.md) section to customize DRUI for
-  your needs.
-- Visit the [GitHub repository](https://github.com/pxlfx/drui) for more
-  information, issue tracking, and contribution guidelines.

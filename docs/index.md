@@ -1,7 +1,6 @@
 # DRUI (Docker Registry UI)
 
-DRUI provides a web interface for managing and interacting with your
-Docker Registry.
+DRUI provides a web interface for managing and interacting with your Docker Registry.
 
 ---
 

@@ -1,8 +1,8 @@
 # Configuration
 
 This section describes the configuration parameters for DRUI.
-You can configure DRUI using a configuration file or environment variables.
-Below is a detailed explanation of each parameter.
+
+You can configure DRUI using a configuration file or environment variables. Below is a detailed explanation of each parameter.
 
 ---
 
@@ -10,8 +10,7 @@ Below is a detailed explanation of each parameter.
 
 ### `host`
 
-- **Description**: the host address on which DRUI will listen for incoming
-  connections
+- **Description**: the host address on which DRUI will listen for incoming connections
 - **Type**: `string`
 - **Example**: `192.168.0.13`
 - **Default**: `0.0.0.0` (listens on all available interfaces)
@@ -27,8 +26,7 @@ Below is a detailed explanation of each parameter.
 
 ### `secret_key`
 
-- **Description**: a secret key used for session cryptography.
-  It is recommended to generate a secure key using the following command:
+- **Description**: a secret key used for session cryptography. It is recommended to generate a secure key using the following command:
 
   ```bash
   openssl rand -base64 16
@@ -62,8 +60,7 @@ Below is a detailed explanation of each parameter.
 
 ### `endpoint`
 
-- **Description**: the endpoint of the Docker Registry that DRUI will connect
-  to
+- **Description**: the endpoint of the Docker Registry that DRUI will connect to
 - **Type**: `string`
 - **Example**: `http://127.0.0.1:5000`
 - **Default**: `<none>` (must be provided)
@@ -71,8 +68,7 @@ Below is a detailed explanation of each parameter.
 
 ### `pull_endpoint`
 
-- **Description**: the endpoint showed in pull-string
-  (`docker pull <pull_endpoint>/<image>`)
+- **Description**: the endpoint showed in pull-string (`docker pull <pull_endpoint>/<image>`)
 - **Type**: `string`
 - **Example**: `http://public.registry.io`
 - **Default**: `<none>` (if not provided, the `endpoint` value is used)
@@ -84,8 +80,7 @@ Below is a detailed explanation of each parameter.
 
 ### `path`
 
-- **Description**: the path to a file containing a broadcast message
-  (in Markdown). This message will be displayed in the DRUI interface
+- **Description**: the path to a file containing a broadcast message (in Markdown). This message will be displayed in the DRUI interface
 - **Type**: `string`
 - **Example**: `/tmp/broadcast.md`
 - **Default**: `<none>` (no broadcast message by default)
@@ -97,8 +92,7 @@ Below is a detailed explanation of each parameter.
 
 ### `official_prefix`
 
-- **Description**: a list of prefixes used to identify official Docker images.
-  Images with these prefixes will be marked as "Official Image" in the UI
+- **Description**: a list of prefixes used to identify official Docker images. Images with these prefixes will be marked as "Official Image" in the UI
 - **Type**: `list`
 - **Example**: `library`
 - **Default**: `<none>` (no official prefixes by default)
@@ -106,8 +100,7 @@ Below is a detailed explanation of each parameter.
 
 ### `verified_prefix`
 
-- **Description**: a list of prefixes used to identify verified Docker images.
-  Images with these prefixes will be marked as "Verified Publisher" in the UI
+- **Description**: a list of prefixes used to identify verified Docker images. Images with these prefixes will be marked as "Verified Publisher" in the UI
 - **Type**: `list`
 - **Example**: `main, cloud`
 - **Default**: `<none>` (no verified prefixes by default)
@@ -119,8 +112,7 @@ Below is a detailed explanation of each parameter.
 
 ### `level`
 
-- **Description**: the level for log messages. You can use the following
-  placeholders:
+- **Description**: the level for log messages. You can use the following placeholders:
   - `info`
   - `warning`
   - `error`
@@ -133,8 +125,7 @@ Below is a detailed explanation of each parameter.
 
 ### `format`
 
-- **Description**: the format for log messages. You can use the following
-  placeholders:
+- **Description**: the format for log messages. You can use the following placeholders:
   - `url`: the requested URL
   - `remote_addr`: the user's network address
   - `method`: the HTTP method (e.g., GET, POST)
@@ -197,19 +188,11 @@ Below is a detailed explanation of each parameter.
 
 ## Additional Tips
 
-- **Configuration File**: you can provide a configuration file
-  when running DRUI. For example:
+- **Configuration File**: you can provide a configuration file when running DRUI. For example:
 
   ```bash
   docker run --volume /path/to/config.cfg:/etc/drui/config.cfg ghcr.io/pxlfx/drui:latest
   ```
 
-- **Environment Variables**: all configuration parameters can be set using
-  environment variables
-- **Security**: ensure that sensitive information (e.g., `secret_key`) is kept
-  secure and not exposed in version control
-
-## Next Steps
-
-- Visit the [GitHub repository](https://github.com/pxlfx/drui) for more
-  information, issue tracking, and contribution guidelines.
+- **Environment Variables**: all configuration parameters can be set using environment variables
+- **Security**: ensure that sensitive information (e.g., `secret_key`) is kept secure and not exposed in version control

@@ -1,9 +1,6 @@
 # Reverse Proxy Configuration
 
-To deploy DRUI in a production environment, it is recommended to use a reverse
-proxy. A reverse proxy can handle SSL termination, load balancing, and other
-advanced features. Below are instructions for setting up a reverse proxy using
-**Nginx** and **Apache**.
+To deploy DRUI in a production environment, it is recommended to use a reverse proxy. A reverse proxy can handle SSL termination, load balancing, and other advanced features. Below are instructions for setting up a reverse proxy using **Nginx** and **Apache**.
 
 ---
 
@@ -27,12 +24,9 @@ server {
 }
 ```
 
-> [!NOTE]
->
 > * replace `server_name your-domain.io` with your actual domain name
 > * replace `proxy_pass http://127.0.0.1:8000` with your actual DRUI address
-> * replace `proxy_set_header X-Forwarded-Prefix /reg/` with your actual DRUI
->   site prefix
+> * replace `proxy_set_header X-Forwarded-Prefix /reg/` with your actual DRUI site prefix
 
 ## Using Apache as a Reverse Proxy
 
@@ -49,16 +43,7 @@ Add the following parameters for your Apache configuration:
    </VirtualHost>
    ```
 
-> [!NOTE]
->
 > * replace `server_name your-domain.io` with your actual domain name
 > * replace `ProxyPass / http://127.0.0.1:8000/` with your actual DRUI address
-> * replace `ProxyPassReverse / http://127.0.0.1:8000/` with your actual DRUI
->   address
-> * replace `RequestHeader set X-Forwarded-Prefix /reg/` with your actual DRUI
->   site prefix
-
-## Next Steps
-
-* Visit the [GitHub repository](https://github.com/pxlfx/drui) for more
-  information, issues, and contributions.
+> * replace `ProxyPassReverse / http://127.0.0.1:8000/` with your actual DRUI address
+> * replace `RequestHeader set X-Forwarded-Prefix /reg/` with your actual DRUI site prefix
