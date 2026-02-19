@@ -11,17 +11,22 @@ from drui.metrics import Tag
 class Database:
     """
     Handles storage and retrieval of container registry metadata.
+
+    Note: On Windows, the database file may remain locked after a "with sqlite3.connect"
+    block, causing "PermissionError" on deletion. This implementation avoids the context
+    manager and uses explicit close() to prevent that.
     """
-    def __init__(self, conf, worker: bool = False):
-        # TODO: need worker flag for windows ???
+    def __init__(self, conf, recreate_on_mismatch: bool = False):
+        """
+        :param conf: instance of configuration file
+        :param recreate_on_mismatch: remove the database file if the registry URL has changed
+        """
         self.conf = conf
         self.path: str = './metrics.db'
         self._init_db()
 
-        # remove the database file if the registry URL has changed
-        # TODO: on Windows can`t get remove database`
         endpoint = self.conf.get('endpoint', section='registry')
-        if self.get_registry() != endpoint and worker:
+        if self.get_registry() != endpoint and recreate_on_mismatch:
             remove(self.path)
             self._init_db()
             self.set_registry(endpoint)
@@ -38,73 +43,77 @@ class Database:
           - layers: list of layers
           - tag_layers: junction table linking tags to their constituent layers
         """
-        with sqlite3.connect(self.path) as conn:
-            conn.executescript('''
-                               CREATE TABLE IF NOT EXISTS [registries]
-                               (
-                                   id       INTEGER PRIMARY KEY DEFAULT 1,
-                                   endpoint TEXT
-                               );
+        conn = sqlite3.connect(self.path)
+        conn.executescript('''
+                            CREATE TABLE IF NOT EXISTS [registries]
+                            (
+                                id       INTEGER PRIMARY KEY DEFAULT 1,
+                                endpoint TEXT
+                            );
 
-                               CREATE TABLE IF NOT EXISTS [stats]
-                               (
-                                   id        INTEGER PRIMARY KEY DEFAULT 1,
-                                   timestamp TEXT NOT NULL,
-                                   status    TEXT,
-                                   message   TEXT
-                               );
+                            CREATE TABLE IF NOT EXISTS [stats]
+                            (
+                                id        INTEGER PRIMARY KEY DEFAULT 1,
+                                timestamp TEXT NOT NULL,
+                                status    TEXT,
+                                message   TEXT
+                            );
 
-                               CREATE TABLE IF NOT EXISTS [images]
-                               (
-                                   id   INTEGER PRIMARY KEY AUTOINCREMENT,
-                                   name TEXT NOT NULL,
-                                   UNIQUE (name)
-                               );
+                            CREATE TABLE IF NOT EXISTS [images]
+                            (
+                                id   INTEGER PRIMARY KEY AUTOINCREMENT,
+                                name TEXT NOT NULL,
+                                UNIQUE (name)
+                            );
 
-                               CREATE TABLE IF NOT EXISTS [tags]
-                               (
-                                   id       INTEGER PRIMARY KEY AUTOINCREMENT,
-                                   image_id INTEGER  NOT NULL,
-                                   digest   INTEGER  NOT NULL,
-                                   name     TEXT     NOT NULL,
-                                   os       TEXT     NOT NULL,
-                                   arch     TEXT     NOT NULL,
-                                   created  DATETIME NOT NULL,
-                                   FOREIGN KEY (image_id) REFERENCES [images] (id) ON DELETE CASCADE,
-                                   UNIQUE (image_id, name)
-                               );
+                            CREATE TABLE IF NOT EXISTS [tags]
+                            (
+                                id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                                image_id INTEGER  NOT NULL,
+                                digest   INTEGER  NOT NULL,
+                                name     TEXT     NOT NULL,
+                                os       TEXT     NOT NULL,
+                                arch     TEXT     NOT NULL,
+                                created  DATETIME NOT NULL,
+                                FOREIGN KEY (image_id) REFERENCES [images] (id) ON DELETE CASCADE,
+                                UNIQUE (image_id, name)
+                            );
 
-                               CREATE TABLE IF NOT EXISTS [layers]
-                               (
-                                   id     INTEGER PRIMARY KEY AUTOINCREMENT,
-                                   digest TEXT   NOT NULL UNIQUE,
-                                   size   BIGINT NOT NULL
-                               );
+                            CREATE TABLE IF NOT EXISTS [layers]
+                            (
+                                id     INTEGER PRIMARY KEY AUTOINCREMENT,
+                                digest TEXT   NOT NULL UNIQUE,
+                                size   BIGINT NOT NULL
+                            );
 
-                               CREATE TABLE IF NOT EXISTS [tag_layers]
-                               (
-                                   tag_id      INTEGER NOT NULL,
-                                   layer_id    INTEGER NOT NULL,
-                                   layer_order INTEGER NOT NULL,
-                                   FOREIGN KEY (tag_id) REFERENCES [tags] (id) ON DELETE CASCADE,
-                                   FOREIGN KEY (layer_id) REFERENCES [layers] (id),
-                                   PRIMARY KEY (tag_id, layer_id)
-                               );
+                            CREATE TABLE IF NOT EXISTS [tag_layers]
+                            (
+                                tag_id      INTEGER NOT NULL,
+                                layer_id    INTEGER NOT NULL,
+                                layer_order INTEGER NOT NULL,
+                                FOREIGN KEY (tag_id) REFERENCES [tags] (id) ON DELETE CASCADE,
+                                FOREIGN KEY (layer_id) REFERENCES [layers] (id),
+                                PRIMARY KEY (tag_id, layer_id)
+                            );
 
-                               CREATE INDEX IF NOT EXISTS [idx_tags_image_id] ON [tags] (image_id);
-                               CREATE INDEX IF NOT EXISTS [idx_tags_created] ON [tags] (created);
-                               CREATE INDEX IF NOT EXISTS [idx_tag_layers_tag_id] ON [tag_layers] (tag_id);
-                               CREATE INDEX IF NOT EXISTS [idx_tag_layers_layer_id] ON [tag_layers] (layer_id);
-                               CREATE INDEX IF NOT EXISTS [idx_layers_digest] ON [layers] (digest);
-                               ''')
+                            CREATE INDEX IF NOT EXISTS [idx_tags_image_id] ON [tags] (image_id);
+                            CREATE INDEX IF NOT EXISTS [idx_tags_created] ON [tags] (created);
+                            CREATE INDEX IF NOT EXISTS [idx_tag_layers_tag_id] ON [tag_layers] (tag_id);
+                            CREATE INDEX IF NOT EXISTS [idx_tag_layers_layer_id] ON [tag_layers] (layer_id);
+                            CREATE INDEX IF NOT EXISTS [idx_layers_digest] ON [layers] (digest);
+                            ''')
+        conn.commit()
+        conn.close()
 
     def set_registry(self, endpoint: str) -> None:
-        with sqlite3.connect(self.path) as conn:
-            conn.execute('''
-                         INSERT OR REPLACE INTO [registries] (id, endpoint)
-                         VALUES (1, ?)
-                         ''', (endpoint,)
-                         )
+        conn = sqlite3.connect(self.path)
+        conn.execute('''
+                        INSERT OR REPLACE INTO [registries] (id, endpoint)
+                        VALUES (1, ?)
+                        ''', (endpoint,)
+                        )
+        conn.commit()
+        conn.close()
 
     def get_registry(self) -> t.Optional[str]:
         result = self.search('''
@@ -115,95 +124,107 @@ class Database:
         return result[0]['endpoint'] if result else None
 
     def update_stats(self, status: t.Optional[str] = None, error: t.Optional[str] = None) -> None:
-        with sqlite3.connect(self.path) as conn:
-            conn.execute('''
-                         INSERT OR REPLACE INTO [stats] (id, timestamp, status, message)
-                         VALUES (1, ?, ?, ?)
-                         ''', (
-                time(),
-                status,
-                error
-            ))
+        conn = sqlite3.connect(self.path)
+        conn.execute('''
+                        INSERT OR REPLACE INTO [stats] (id, timestamp, status, message)
+                        VALUES (1, ?, ?, ?)
+                        ''', (
+            time(),
+            status,
+            error
+        ))
+        conn.commit()
+        conn.close()
 
     def save(self, tag: Tag) -> None:
-        with sqlite3.connect(self.path) as conn:
-            conn.execute("PRAGMA foreign_keys = ON")
+        conn = sqlite3.connect(self.path)
+        conn.execute("PRAGMA foreign_keys = ON")
 
+        cursor = conn.execute(
+            "INSERT OR IGNORE INTO [images] (name) VALUES (?)",
+            (tag.image,)
+        )
+
+        image_id = cursor.lastrowid if cursor.rowcount else None
+        if not image_id:
             cursor = conn.execute(
-                "INSERT OR IGNORE INTO [images] (name) VALUES (?)",
+                "SELECT id FROM [images] WHERE name = ?",
                 (tag.image,)
             )
-            image_id = cursor.lastrowid if cursor.rowcount else None
-            if not image_id:
-                cursor = conn.execute(
-                    "SELECT id FROM [images] WHERE name = ?",
-                    (tag.image,)
-                )
-                image_id = cursor.fetchone()[0]
+            image_id = cursor.fetchone()[0]
 
-            # add tag
+        # add tag
+        cursor = conn.execute('''
+            INSERT OR REPLACE INTO [tags] 
+            (image_id, digest, name, os, arch, created) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (image_id, tag.digest, tag.tag, tag.os, tag.arch, tag.created))
+        tag_id = cursor.lastrowid if cursor.rowcount else None
+
+        # add layers
+        for order, layer in enumerate(tag.layers):
             cursor = conn.execute('''
-                INSERT OR REPLACE INTO [tags] 
-                (image_id, digest, name, os, arch, created) 
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (image_id, tag.digest, tag.tag, tag.os, tag.arch, tag.created))
-            tag_id = cursor.lastrowid if cursor.rowcount else None
+                                    INSERT OR IGNORE INTO [layers] (digest, size)
+                                    VALUES (?, ?)
+                                    ''', (layer['digest'], layer['size']))
 
-            # add layers
-            for order, layer in enumerate(tag.layers):
-                cursor = conn.execute('''
-                                      INSERT OR IGNORE INTO [layers] (digest, size)
-                                      VALUES (?, ?)
-                                      ''', (layer['digest'], layer['size']))
+            layer_id = cursor.lastrowid if cursor.rowcount else None
+            if not layer_id:
+                cursor = conn.execute(
+                    "SELECT id FROM [layers] WHERE digest = ?",
+                    (layer['digest'],)
+                )
+                layer_id = cursor.fetchone()[0]
 
-                layer_id = cursor.lastrowid if cursor.rowcount else None
-                if not layer_id:
-                    cursor = conn.execute(
-                        "SELECT id FROM [layers] WHERE digest = ?",
-                        (layer['digest'],)
-                    )
-                    layer_id = cursor.fetchone()[0]
+            # create link tag-layer
+            conn.execute('''
+                INSERT OR REPLACE INTO [tag_layers] 
+                (tag_id, layer_id, layer_order) 
+                VALUES (?, ?, ?)
+            ''', (tag_id, layer_id, order))
 
-                # create link tag-layer
-                conn.execute('''
-                    INSERT OR REPLACE INTO [tag_layers] 
-                    (tag_id, layer_id, layer_order) 
-                    VALUES (?, ?, ?)
-                ''', (tag_id, layer_id, order))
+        conn.commit()
+        conn.close()
 
     def remove(self, image: str, tag) -> None:
-        with sqlite3.connect(self.path) as conn:
-            conn.execute("PRAGMA foreign_keys = ON")
+        conn = sqlite3.connect(self.path)
+        conn.execute("PRAGMA foreign_keys = ON")
 
-            conn.execute("""
-                         DELETE
-                         FROM tags
-                         WHERE name = ?
-                           AND image_id = (SELECT id FROM images WHERE name = ?)
-                         """,
-                         (tag, image))
+        conn.execute("""
+                        DELETE
+                        FROM tags
+                        WHERE name = ?
+                        AND image_id = (SELECT id FROM images WHERE name = ?)
+                        """,
+                        (tag, image))
 
-            conn.execute("""
-                         DELETE
-                         FROM images
-                         WHERE id NOT IN (SELECT image_id FROM tags);
-                         """)
+        conn.execute("""
+                        DELETE
+                        FROM images
+                        WHERE id NOT IN (SELECT image_id FROM tags);
+                        """)
 
-            conn.execute("""
-                         DELETE
-                         FROM layers
-                         WHERE id NOT IN (SELECT layer_id FROM tag_layers);
-                         """)
+        conn.execute("""
+                        DELETE
+                        FROM layers
+                        WHERE id NOT IN (SELECT layer_id FROM tag_layers);
+                        """)
+        
+        conn.commit()
+        conn.close()
 
     def search(self, sql: str) -> t.List[t.Dict[str, str]]:
-        with sqlite3.connect(self.path) as conn:
-            cur = conn.cursor()
-            cur.execute(sql)
+        conn = sqlite3.connect(self.path)
+        cur = conn.cursor()
+        cur.execute(sql)
 
-        return [
+        result = [
             dict((cn[0], row[i]) for i, cn in enumerate(cur.description))
             for row in cur.fetchall()
         ]
+
+        conn.close()
+        return result
 
     def tags(self) -> t.List[t.Dict[str, str]]:
         return self.search("""
