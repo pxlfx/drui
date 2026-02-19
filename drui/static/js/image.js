@@ -89,17 +89,17 @@ function setSummary() {
         entrypoint: {
             icon: "fa fa-location-dot",
             data: manifest["config"]["Entrypoint"],
-            format: (x) => x.join("<br>")
+            format: (x) => x.join("\n")
         },
         env: {
             icon: "fa fa-align-right",
             data: manifest["config"]["Env"],
-            format: (x) => x.join("<br>")
+            format: (x) => x.join("\n")
         },
         ports: {
             icon: "fa fa-wifi",
             data: manifest["config"]["ExposedPorts"],
-            format: (x) => Object.keys(x).join("<br>")
+            format: (x) => Object.keys(x).join("\n")
         },
         "work dir": {
             icon: "fa fa-house",
