@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 This project adheres to [Semantic Versioning].
 
+## [0.2.1] - 2026-02-20
+
+### Fixed
+
+- fixed incompatibility with Windows by replacing Gunicorn with Waitress as the WSGI server
+- fixed database lock errors for metrics on Windows
+- fixed XSS vulnerabilities caused by unsafe `innerHTML` usage
+- fixed argument type mismatches in function calls
+- fixed potential mass deletion of metrics database
+- fixed incorrect display of the list of tags being deleted (updated `table.js` to version 0.1.3)
+- fixed security issues in Docker Compose configuration
+- fixed Docker container startup failure when `read_only: true` is set (added `DRUI_METRICS_PATH` variable)
+
 ## [0.2.0] - 2025-12-25
 
 ### Added
@@ -53,5 +66,6 @@ This project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
+[0.2.1]: https://github.com/pxlfx/drui/releases/tag/0.2.1
 [0.2.0]: https://github.com/pxlfx/drui/releases/tag/0.2.0
 [0.1.0]: https://github.com/pxlfx/drui/releases/tag/0.1.0

@@ -2,7 +2,7 @@
 
 Docker Registry UI
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Release](https://img.shields.io/github/release/pxlfx/drui.svg)](https://github.com/pxlfx/drui/releases/latest)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Release](https://img.shields.io/github/release/pxlfx/drui.svg)](https://github.com/pxlfx/drui/releases/latest)
 
 <div align="center">
   <img src="docs/images/logo.png" alt="drui-logo"/>
@@ -50,6 +50,7 @@ This tool simplifies the management and exploration of container images stored i
 - **Image Marking**: identify official and verified publisher images
 - **Theme**: dark/light theme in web interface
 - **Mobile View**: support mobile view
+- **Cross-Platform**: run on both Linux and Windows systems
 
 ## Quickstart
 
