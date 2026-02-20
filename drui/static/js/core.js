@@ -251,7 +251,7 @@ function createButton(options = {}) {
  */
 function modal_error(text) {
     let feedback = document.getElementById("modal_feedback");
-    feedback.children[0].innerText = text;
+    feedback.children[0].innerHTML = text;
     feedback.classList.remove("visually-hidden");
 }
 
