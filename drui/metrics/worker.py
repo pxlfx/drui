@@ -35,7 +35,7 @@ def run(conf: ConfigParser) -> None:
 
                 if status == STATUSES.completed:
                     sleep(diff if diff >= 0 else 0)
-                elif STATUSES.error:
+                elif status ==STATUSES.error:
                     error_count += 1
                     if error_count >= 3:
                         exit(2)
