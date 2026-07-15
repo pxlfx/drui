@@ -6,7 +6,8 @@ from re import sub
 import flask
 from flask import render_template
 from werkzeug import Response
-from werkzeug.exceptions import HTTPException, Unauthorized
+from werkzeug.exceptions import HTTPException
+from werkzeug.exceptions import Unauthorized
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from drui import __version__
@@ -14,6 +15,7 @@ from drui.common.config import ConfigParser
 from drui.common.logging import RequestFormatter
 from drui.common.logging import disable_wsgi_logging
 from drui.common.logging import get_logger
+from drui.common.session import EncryptedSessionInterface
 from drui.common.utils import RequestParams
 from drui.common.utils import json_answer
 from drui.common.utils import to_json
@@ -352,7 +354,10 @@ def init_app(conf: ConfigParser) -> flask.Flask:
     :return: instance of Flask app
     """
     setattr(app, 'conf', conf)
-    app.secret_key = conf.get('secret_key', default='secret_key')
+    app.secret_key = Fingerprint(conf.get('secret_key')).hex
+
+    # encrypted session interface
+    app.session_interface = EncryptedSessionInterface()
 
     # error codes registration
     for code in [400, 401, 403, 404, 405, 500, 503]:
