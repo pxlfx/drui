@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import logging
-import sys
 import typing as t
 
-from flask import cli
 from flask import Flask
+from flask import cli
 from flask import has_request_context
 from flask import request
 
@@ -87,8 +84,9 @@ def get_logger(name: t.Optional[str] = None) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(log_level(level))
 
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
     return logger
