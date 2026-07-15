@@ -200,7 +200,7 @@ class Registry:
         # add image digest to manifest
         manifest['digest'] = resp.headers.get(
             'Docker-Content-Digest',
-            default=sha256(resp.text.encode('utf-8')).hexdigest()
+            default=f'sha256:{sha256(resp.content).hexdigest()}'
         )
 
         # add image configuration to manifest
@@ -284,7 +284,7 @@ class Registry:
 
         schema_version = manifest.get('schemaVersion')
         if schema_version != 2:
-            raise NotImplemented(f'Manifest schemaVersion "{schema_version} not supported.')
+            raise NotImplemented(f'Manifest schemaVersion "{schema_version}" not supported.')
 
         # add image configuration
         config_digest = manifest.get('id')
