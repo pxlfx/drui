@@ -81,13 +81,13 @@ class Vault:
             if sid not in self._store:
                 return default
 
-            item = self._store[sid]
+            item = self._store.get(sid)
             if time.time() > item['expires']:
                 del self._store[sid]
                 self._remove_from_heap(sid)
                 return default
 
-            return self._store.get(sid)
+            return item['value']
 
     def remove(self, sid: str) -> bool:
         """
