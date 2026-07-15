@@ -29,7 +29,7 @@ def json_answer(message: t.Any, status_code: int = 200) -> Response:
     :return: response in JSON
     """
     if isinstance(message, HTTPException):
-        status_code = message.code or 505
+        status_code = message.code or 500
         message = message.description
 
     response = jsonify(message)
