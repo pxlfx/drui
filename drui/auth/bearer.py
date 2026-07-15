@@ -89,7 +89,7 @@ class Bearer:
 
             token_data = response.json()
             token = token_data.get('token')
-            ttl = token_data.get('expires_in2', 60)
+            ttl = token_data.get('expires_in', 60)
             if not token:
                 raise ValueError(f'Token not found in response: {token_data}.')
 
