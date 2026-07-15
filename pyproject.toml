@@ -56,7 +56,6 @@ path = 'drui/__init__.py'
 test = ['pytest', 'pytest-cov', 'bs4']
 
 [tool.pytest.ini_options]
-cache_dir = '/tmp/drui-cache'
 addopts = [
     '--disable-warnings',
     '--no-header',

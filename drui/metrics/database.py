@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sqlite3
+import tempfile
 import typing as t
 from os import remove
 from time import time
@@ -16,13 +18,15 @@ class Database:
     block, causing "PermissionError" on deletion. This implementation avoids the context
     manager and uses explicit close() to prevent that.
     """
+
     def __init__(self, conf, recreate_on_mismatch: bool = False):
         """
         :param conf: instance of configuration file
         :param recreate_on_mismatch: remove the database file if the registry URL has changed
         """
         self.conf = conf
-        self.path: str = self.conf.get('path', section='metrics', default='/tmp/metrics.db')
+        self.path: str = self.conf.get('path', section='metrics',
+                                       default=os.path.join(tempfile.gettempdir(), 'metrics.db'))
         self._init_db()
 
         endpoint = self.conf.get('endpoint', section='registry')
@@ -110,8 +114,7 @@ class Database:
         conn.execute('''
                         INSERT OR REPLACE INTO [registries] (id, endpoint)
                         VALUES (1, ?)
-                        ''', (endpoint,)
-                        )
+                        ''', (endpoint,))
         conn.commit()
         conn.close()
 
@@ -195,8 +198,7 @@ class Database:
                         FROM tags
                         WHERE name = ?
                         AND image_id = (SELECT id FROM images WHERE name = ?)
-                        """,
-                        (tag, image))
+                        """, (tag, image))
 
         conn.execute("""
                         DELETE
@@ -209,7 +211,7 @@ class Database:
                         FROM layers
                         WHERE id NOT IN (SELECT layer_id FROM tag_layers);
                         """)
-        
+
         conn.commit()
         conn.close()
 
