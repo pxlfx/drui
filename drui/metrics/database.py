@@ -254,7 +254,7 @@ class Database:
     def layers(self) -> str:
         return self.search('SELECT COUNT(id) AS layers FROM [layers]')[0]['layers']
 
-    def dublicates(self) -> t.List[t.Dict[str, t.List[str]]]:
+    def duplicates(self) -> t.List[t.Dict[str, t.List[str]]]:
         items = self.search('''
                             SELECT tag.digest AS digest, img.name AS image, tag.name AS tag
                             FROM tags tag
@@ -263,13 +263,13 @@ class Database:
                                   (SELECT digest FROM tags GROUP BY digest HAVING COUNT(DISTINCT image_id) > 1)
                             ORDER BY tag.digest, img.id;
                             ''')
-        dublicates = {}
+        duplicates = {}
         for item in items:
             digest = item['digest']
-            dublicates.setdefault(digest, [])
-            dublicates[digest].append(f"{item['image']}:{item['tag']}")
+            duplicates.setdefault(digest, [])
+            duplicates[digest].append(f"{item['image']}:{item['tag']}")
 
-        return [{'digest': digest, 'images': images} for digest, images in dublicates.items()]
+        return [{'digest': digest, 'images': images} for digest, images in duplicates.items()]
 
     def newest(self) -> t.List[t.Dict[str, str]]:
         items = self.search('''

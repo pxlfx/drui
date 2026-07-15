@@ -259,7 +259,7 @@ def get_metrics() -> t.Union[Response, t.Tuple[str, int]]:
         'size': metrics.size(),
         'images': metrics.images(),
         'layers': metrics.layers(),
-        'dublicates': metrics.dublicates(),
+        'duplicates': metrics.duplicates(),
         'newest': metrics.newest(),
         'oldest': metrics.oldest()
     }

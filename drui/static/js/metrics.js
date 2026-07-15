@@ -64,9 +64,9 @@ $(function () {
                 }
                 break;
 
-            case "dublicates":
+            case "duplicates":
                 if (!value.length) {
-                    value = "No dublicates found";
+                    value = "No duplicates found";
                 } else {
                     const div = document.createElement("div");
                     value.forEach((item) => {

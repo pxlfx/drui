@@ -134,13 +134,13 @@ class Metrics:
         """
         return self.db.layers()
 
-    def dublicates(self):
+    def duplicates(self):
         """
         Return list of image duplicates.
 
-        :return: list of dublicates
+        :return: list of duplicates
         """
-        return self.db.dublicates()
+        return self.db.duplicates()
 
     def newest(self):
         """
