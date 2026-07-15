@@ -1,4 +1,4 @@
-{% extends "core.html" %} {% set broadcast = conf.get('path', 'broadcast') %} {% set images_per_page = conf.get('images_per_page') | safe %}
+{% extends "core.html" %} {% set broadcast = conf.get('path', 'broadcast') %} {% set images_per_page = conf.get('images_per_page') %}
 {% block head %}
     <link href="{{ url_for('static', filename='libs/highlight/github.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ url_for('static', filename='libs/highlight/github-dark.min.css') }}" rel="stylesheet" type="text/css">
@@ -39,7 +39,7 @@
     </style>
 
     <script>
-        const repositories = {{ repositories | tojson | safe }};
+        const repositories = {{ repositories | tojson }};
         const images_per_page = parseInt("{{ images_per_page }}");
         const broadcast_exists = {% if broadcast != None %} true {% else %} false {% endif %};
     </script>

@@ -1,6 +1,6 @@
 {% set theme = conf.get('bootstrap_theme') %}
-{% set official_prefix = conf.getlist('official_prefix', 'mark', default=[]) | safe %}
-{% set verified_prefix = conf.getlist('verified_prefix', 'mark', default=[]) | safe %}
+{% set official_prefix = conf.getlist('official_prefix', 'mark', default=[]) | tojson %}
+{% set verified_prefix = conf.getlist('verified_prefix', 'mark', default=[]) | tojson %}
 
 <!DOCTYPE html>
 <html lang="en" class="h-100">
