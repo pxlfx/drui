@@ -37,7 +37,7 @@ class Metrics:
 
         try:
             tags = []
-            db_tags = [f'{item["image"]}:{item["tag"]}' for item in self.db.tags()]
+            db_tags = {f'{item["image"]}:{item["tag"]}' for item in self.db.tags()}
             catalog = self._catalog()
 
             for image in catalog:
@@ -49,7 +49,7 @@ class Metrics:
                             self.db.save(self._process_tag(image, tag))
                         except ProcessingImageError as error:
                             self.log.warning(f'Metrics worker skip image: {error}')
-            for tag_name in set(db_tags).difference(tags):
+            for tag_name in db_tags.difference(tags):
                 image, tag = tag_name.split(':')
                 self.db.remove(image, tag)
 
