@@ -12,6 +12,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from drui import __version__
 from drui.common.config import ConfigParser
+from drui.common.fingerprint import Fingerprint
 from drui.common.logging import RequestFormatter
 from drui.common.logging import disable_wsgi_logging
 from drui.common.logging import get_logger
@@ -109,7 +110,7 @@ def image_ref(image: str) -> t.Union[Response, t.Tuple[str, int]]:
     if not tags:
         return flask.render_template('empty.html', image=image), 200
 
-    tag = 'latest' if (not tags or 'latest' in tags) else tags[-1]
+    tag = 'latest' if ('latest' in tags) else tags[-1]
     return flask.redirect(f'/_/{image}/tags/{tag}')
 
 
