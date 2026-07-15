@@ -61,7 +61,7 @@ def catalog(repo: t.Optional[str] = None) -> t.Union[Response, t.Tuple[str, int]
     registry = get_registry()
     repos = []
 
-    conf = getattr(flask.current_app, 'conf')
+    conf = get_conf()
     metrics = Metrics(conf)
     raw = metrics.raw()
 
@@ -252,7 +252,7 @@ def get_metrics() -> t.Union[Response, t.Tuple[str, int]]:
     """
     Registry metrics page.
     """
-    conf = getattr(flask.current_app, 'conf')
+    conf = get_conf()
     metrics = Metrics(conf)
     data = {
         'stats': metrics.stats(),
