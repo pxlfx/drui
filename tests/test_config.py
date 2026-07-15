@@ -99,7 +99,7 @@ def test_test_getint_default(config):
     """
     Test the getint functionality with a default value.
     """
-    value = config.getboolean('option', 'section', default=123)
+    value = config.getint('option', 'section', default=123)
     assert value == 123
 
 
