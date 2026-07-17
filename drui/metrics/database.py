@@ -74,7 +74,7 @@ class Database:
                             (
                                 id       INTEGER PRIMARY KEY AUTOINCREMENT,
                                 image_id INTEGER  NOT NULL,
-                                digest   INTEGER  NOT NULL,
+                                digest   TEXT  NOT NULL,
                                 name     TEXT     NOT NULL,
                                 os       TEXT     NOT NULL,
                                 arch     TEXT     NOT NULL,
