@@ -48,7 +48,7 @@ def _get_view_func(url: str, method: str = 'GET') -> t.Optional[t.Callable]:
     :param method: (optional) method
     :return: function, function parameters
     """
-    adapter = current_app.url_map.bind('localhost')
+    adapter = current_app.url_map.bind(request.host)
 
     try:
         match = adapter.match(url, method=method)
