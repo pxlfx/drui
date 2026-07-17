@@ -341,13 +341,14 @@ class RequestQueue {
         that.workers++;
         let unit = this.queue.shift();
 
-        return new Promise(() => {
+        return new Promise((resolve) => {
             let options = typeof that.options === "function" ? that.options(unit) : that.options;
             let complete = options.complete;
             options.complete = (XDR, status) => {
                 complete(XDR, status);
                 that.workers--;
                 next();
+                resolve();
             };
 
             $.ajax(options);
