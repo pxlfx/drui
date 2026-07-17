@@ -128,12 +128,12 @@ class Registry:
         :return: response object
         """
         max_retries = 3
-        for attempt in range(max_retries):
+        for _ in range(max_retries):
             kwargs.update({'method': method, 'uri': uri})
             req = self.make_request(**kwargs)
 
             with requests.Session() as session:
-                resp = session.send(req)
+                resp = session.send(req, timeout=60)
 
             try:
                 check_status(resp)
