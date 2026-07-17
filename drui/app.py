@@ -245,7 +245,8 @@ def get_broadcast() -> t.Union[Response, str]:
             broadcast = f.read()
         return json_answer(broadcast)
     except Exception as error:
-        return json_answer(str(error), status_code=500)
+        log.error(f'Error processing broadcast message: {error}')
+        return flask.make_response('Error processing broadcast message.', 500)
 
 
 @app.route('/metrics')
