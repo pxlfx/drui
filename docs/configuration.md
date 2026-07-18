@@ -26,10 +26,18 @@ You can configure DRUI using a configuration file or environment variables. Belo
 
 ### `secret_key`
 
-- **Description**: a secret key used for session cryptography. It is recommended to generate a secure key using the following command:
+- **Description**: a key for session encryption (Fernet).
+
+  WARNING: For cluster mode (multiple service instances),
+  you MUST set the same secret_key on all instances.
+  Otherwise, sessions created on one node cannot be
+  decrypted on another.
+
+  It is recommended to generate a secure key using the
+  following command:
 
   ```bash
-  openssl rand -base64 16
+  openssl rand -base64 32
   ```
 
 - **Type**: `string`

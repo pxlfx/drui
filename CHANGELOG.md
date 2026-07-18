@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 This project adheres to [Semantic Versioning].
 
+## [0.2.2] - 2026-07-18
+
+### Fixed
+
+- fixed hanging Promise in RequestQueue executor
+- fixed hardcoded "localhost" address used for URL matching
+- fixed incorrect column type for `digest` in `tags` table
+- fixed timeout not being set for registry requests
+- fixed detailed error message for broadcast message processing being displayed to the user
+- fixed missing "sha256:" prefix when obtaining Docker-Content-Digest not from the response header
+- fixed incorrect HTTP return code (505) when a service error occurs
+- fixed `error_count` not being reset on successful request execution
+- fixed incorrect function called in `test_test_getint_default`
+- fixed simple hardcoded default `secret_key`
+- fixed spelling error in the word "duplicates" (was "dublicates")
+- fixed potentially dangerous Jinja2 safe filters for HTML templates
+- fixed `Vault.get` returning the internal dict instead of the value
+- fixed wrong key used to retrieve the token TTL
+- fixed inefficient tag lookup in the tags list
+- fixed setting some paths that are not available on Windows
+- fixed missing existence check for logger handler before adding
+- fixed Flask session not being encrypted, allowing it to be decoded and the password to be read
+- fixed `error_count` being incremented on every iteration, which leads to a worker crash after 3 cycles
+
+### Changed
+
+- refactored: replaced duplicated code with `get_conf` call
+
 ## [0.2.1] - 2026-02-20
 
 ### Fixed
@@ -66,6 +94,7 @@ This project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
+[0.2.2]: https://github.com/pxlfx/drui/releases/tag/0.2.2
 [0.2.1]: https://github.com/pxlfx/drui/releases/tag/0.2.1
 [0.2.0]: https://github.com/pxlfx/drui/releases/tag/0.2.0
 [0.1.0]: https://github.com/pxlfx/drui/releases/tag/0.1.0

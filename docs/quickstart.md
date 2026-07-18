@@ -96,3 +96,5 @@ This will start both DRUI and the Docker Registry in detached mode. You can acce
 ## Additional Tips
 
 - **Reverse Proxy**: if you are running DRUI behind a [reverse proxy](reverse_proxy.md), make sure to configure the proxy to forward the correct headers
+
+- **Secret Key**: if you plan to use Registry authorization, ensure you set a `secret_key` in the configuration. In a single-node setup, DRUI will use the node fingerprint automatically. For cluster deployments, you **must** set the same `secret_key` on all instances. See [configuration](configuration.md#secret_key) for details

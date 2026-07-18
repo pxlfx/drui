@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   drui:
-    image: localhost/drui:0.2.1
+    image: localhost/drui:0.2.2
     container_name: drui
     restart: always
     read_only: true
