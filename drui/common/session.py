@@ -12,9 +12,20 @@ import typing as t
 from base64 import urlsafe_b64encode
 from hashlib import sha256
 
+import flask
 from cryptography.fernet import Fernet
-from flask import Flask
+from flask.sessions import SecureCookieSession
 from flask.sessions import SecureCookieSessionInterface
+
+from drui.common.logging import get_logger
+
+log = get_logger(__name__)
+
+
+class SessionDecryptionError(Exception):
+    """
+    Raised when session decryption fails due to an invalid or tampered token.
+    """
 
 
 class FernetSessionSerializer:
@@ -48,10 +59,15 @@ class FernetSessionSerializer:
         :param value: the encrypted session token
         :param max_age: (optional) the maximum age of the token (in seconds)
         :return: the original session dictionary
+        :raises SessionDecryptionError: if the token is invalid or tampered with
         """
-        encrypted = value.encode('utf-8')
-        decrypted = self.fernet.decrypt(encrypted, ttl=max_age)
-        return json.loads(decrypted.decode('utf-8'))
+        try:
+            encrypted = value.encode('utf-8')
+            decrypted = self.fernet.decrypt(encrypted, ttl=max_age)
+            return json.loads(decrypted.decode('utf-8'))
+        except Exception as error:
+            log.error(f'Failed to deserialize session: {error}')
+            raise SessionDecryptionError() from error
 
 
 class EncryptedSessionInterface(SecureCookieSessionInterface):
@@ -59,7 +75,7 @@ class EncryptedSessionInterface(SecureCookieSessionInterface):
     A Flask session interface backed by Fernet-encrypted cookies.
     """
 
-    def get_signing_serializer(self, app: Flask) -> t.Optional[FernetSessionSerializer]:
+    def get_signing_serializer(self, app: flask.Flask) -> t.Optional[FernetSessionSerializer]:
         """
         Build a Fernet-based serializer for the given Flask application.
 
@@ -80,3 +96,31 @@ class EncryptedSessionInterface(SecureCookieSessionInterface):
 
         fernet = Fernet(fernet_key)
         return FernetSessionSerializer(fernet)
+
+    def open_session(self, app: flask.Flask, request: flask.Request) -> t.Optional[SecureCookieSession]:
+        """
+        Open and decrypt a session from the request cookie.
+
+        :param app: the application instance
+        :param request: the incoming request
+        :return: a session object or None
+        """
+        serializer = self.get_signing_serializer(app)
+        if serializer is None:
+            return None
+
+        name = self.get_cookie_name(app)
+        cookie_value = request.cookies.get(name)
+        if not cookie_value:
+            return self.session_class()
+
+        max_age = int(app.permanent_session_lifetime.total_seconds())
+
+        try:
+            data = serializer.loads(cookie_value, max_age=max_age)
+            return self.session_class(data)
+        except SessionDecryptionError:
+            log.warning(f'Clearing corrupted session cookie for {request.remote_addr}')
+            session = self.session_class()
+            session.modified = True
+            return session
