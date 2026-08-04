@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import typing as t
 from configparser import ConfigParser as _ConfigParser
 from configparser import DEFAULTSECT

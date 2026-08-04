@@ -38,7 +38,9 @@ class WSGIApplication:
         self.threads = threads
 
     def run(self):
-        """Запускает сервер Waitress с настройками"""
+        """
+        Run waitress server.
+        """
         serve(
             self.app,
             host=self.host,
