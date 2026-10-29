@@ -36,6 +36,23 @@ def test_get_default(config):
     assert value == 'default'
 
 
+def test_get_keyword(config):
+    """
+    Test the get functionality with keyword arguments only.
+    """
+    config.set('option', 'value', 'section')
+    value = config.get(option='option', section='section')
+    assert value == 'value'
+
+
+def test_get_keyword_default(config):
+    """
+    Test the get functionality with keyword arguments and a default.
+    """
+    value = config.get(option='option', section='section', default='default')
+    assert value == 'default'
+
+
 def test_get_env(config):
     """
     Test the get functionality with environment variables.

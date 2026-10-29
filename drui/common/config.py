@@ -29,10 +29,9 @@ def get_env(func: t.Callable) -> t.Callable:
 
     @wraps(func)
     def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
-        self, option, *section = args
-
-        if not section and 'section' in kwargs:
-            section = [kwargs.get('section', '')]
+        self, *bind = args
+        option = bind[0] if bind else kwargs['option']
+        section = bind[1:] or [kwargs.get('section', DEFAULTSECT)]
 
         key = env_key(option, *section)
         if key in environ:
