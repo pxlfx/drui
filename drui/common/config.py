@@ -3,34 +3,57 @@ from configparser import ConfigParser as _ConfigParser
 from configparser import DEFAULTSECT
 from configparser import NoOptionError
 from configparser import NoSectionError
+from functools import wraps
 from os import PathLike
 from os import environ
+
+ENV_PREFIX = 'DRUI_'
+
+
+def get_env(func: t.Callable) -> t.Callable:
+    """
+    Decorator: return variable from environment.
+    """
+
+    def env_key(option: str, section: str = DEFAULTSECT) -> str:
+        """
+         Converts the name of the requested variable to the corresponding
+         environment variable name.
+
+        :param option: option name
+        :param section: (optional) section
+        :return: environment variable name
+        """
+        if section != DEFAULTSECT:
+            return f'{ENV_PREFIX}{section}_{option}'.upper()
+        return f'{ENV_PREFIX}{option}'.upper()
+
+    @wraps(func)
+    def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
+        self, *bind = args
+        option = bind[0] if bind else kwargs['option']
+        section = bind[1:] or [kwargs.get('section', DEFAULTSECT)]
+
+        key = env_key(option, *section)
+        if key in self._env:
+            self.set(option, self._env.get(key), *section)
+
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 class ConfigParser:
     def __init__(self, **kwargs: t.Any) -> None:
         self._config = _ConfigParser(**kwargs)
-        self._apply_env()
-
-    def _apply_env(self) -> None:
-        """
-        Apply environment variables as configuration overrides.
-        """
-        prefix = 'DRUI_'
-        for key, value in environ.items():
-            if not key.upper().startswith(prefix):
-                continue
-            name = key[len(prefix):].lower()
-            section, sep, option = name.partition('_')
-            if sep:
-                self.set(option, value, section)
-            else:
-                self.set(name, value)
+        self._env = {
+            key.upper(): value
+            for key, value in environ.items()
+            if key.upper().startswith(ENV_PREFIX)
+        }
 
     def read(self, config_file: t.Union[PathLike, str]) -> t.List[str]:
-        result = self._config.read(config_file, encoding='utf-8')
-        self._apply_env()
-        return result
+        return self._config.read(config_file, encoding='utf-8')
 
     def add_section(self, section: str) -> None:
         return self._config.add_section(section)
@@ -50,6 +73,7 @@ class ConfigParser:
             self.add_section(section)
             return self._config.set(section, option, value)
 
+    @get_env
     def get(
             self,
             option: str,
@@ -62,6 +86,7 @@ class ConfigParser:
         except (NoOptionError, NoSectionError, ValueError):
             return default
 
+    @get_env
     def getboolean(
             self,
             option: str,
@@ -73,6 +98,7 @@ class ConfigParser:
         except (NoOptionError, NoSectionError, ValueError):
             return default
 
+    @get_env
     def getint(
             self,
             option: str,
@@ -84,6 +110,7 @@ class ConfigParser:
         except (NoOptionError, NoSectionError, ValueError):
             return default
 
+    @get_env
     def getlist(
             self,
             option: str,

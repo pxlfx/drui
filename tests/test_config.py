@@ -55,22 +55,20 @@ def test_get_keyword_default(config):
     assert value == 'default'
 
 
-def test_get_env(config):
+def test_get_env(monkeypatch):
     """
     Test the get functionality with environment variables.
     """
-    assert not config.get('option', 'section')
-    environ['DRUI_SECTION_OPTION'] = 'value'
+    monkeypatch.setenv('DRUI_REGISTRY_PULL_ENDPOINT', 'value')
 
     conf = ConfigParser(allow_no_value=True)
-    
-    assert conf.get('option', 'section') == 'value'
+    assert conf.get('pull_endpoint', 'registry') == 'value'
 
-    environ['DRUI_SECTION_OPTION'] = 'changed'
-    assert conf.get('option', 'section') == 'value'
+    monkeypatch.setenv('DRUI_REGISTRY_PULL_ENDPOINT', 'changed')
+    assert conf.get('pull_endpoint', 'registry') == 'value'
 
-    del environ['DRUI_SECTION_OPTION']
-    assert conf.get('option', 'section') == 'value'
+    monkeypatch.delenv('DRUI_REGISTRY_PULL_ENDPOINT')
+    assert conf.get('pull_endpoint', 'registry') == 'value'
 
 
 def test_getboolean(config):
