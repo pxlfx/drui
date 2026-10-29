@@ -2,6 +2,8 @@ from os import environ
 
 import pytest
 
+from drui.common.config import ConfigParser
+
 
 def test_read(config):
     """
@@ -60,8 +62,15 @@ def test_get_env(config):
     assert not config.get('option', 'section')
     environ['DRUI_SECTION_OPTION'] = 'value'
 
-    value = config.get('option', 'section')
-    assert value == 'value'
+    conf = ConfigParser(allow_no_value=True)
+    
+    assert conf.get('option', 'section') == 'value'
+
+    environ['DRUI_SECTION_OPTION'] = 'changed'
+    assert conf.get('option', 'section') == 'value'
+
+    del environ['DRUI_SECTION_OPTION']
+    assert conf.get('option', 'section') == 'value'
 
 
 def test_getboolean(config):
